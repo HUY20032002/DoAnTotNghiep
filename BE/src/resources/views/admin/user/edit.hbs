@@ -1,0 +1,9 @@
+<h2>Sửa thông tin người dùng</h2>
+<form method="POST" action="/admin/user/{{user._id}}?_method=PUT">
+  <input type="text" name="name" value="{{user.name}}" />
+  <input type="email" name="email" value="{{user.email}}" disabled />
+  <input type="text" name="password" value="{{user.password}} " disabled />
+  <input type="text" name="phone" value="{{user.phone}}" />
+  <input type="text" name="address" value="{{user.address}}" />
+  <button type="submit">Cập nhật</button>
+</form>

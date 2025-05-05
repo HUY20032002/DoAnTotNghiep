@@ -1,0 +1,110 @@
+
+<div class="">
+  <h1>
+    Người dùng đã xóa
+  </h1>
+</div>
+
+<a href="/admin/user/manageruser"> Quản Lý Người Dùng</a>
+{{!-- <form action="/admin/user/trash-manageruser" method="GET" class="mb-3">
+  <input type="text" name="q" placeholder="Nhập tên hoặc email..." value="{{query}}" />
+  <button type="submit">Tìm kiếm</button>
+</form> --}}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Tên</th>
+      <th scope="col">Email</th>
+      <th scope="col">Mật Khẩu</th>
+      <th scope="col">Điện Thoại</th>
+      <th scope="col">Địa chỉ</th>
+      <th scope="col">Thời Gian Tạo</th>
+      <th scope="col">Action</th>
+
+    </tr>
+  </thead>
+
+  <tbody>
+    {{#each users}}
+      <tr>
+        <th scope="row">{{sum @index 1}}</th>
+        <td>{{this.name}}</td>
+        <td>{{this.email}}</td>
+        <td>{{this.password}}</td>
+        <td>{{this.phone}}</td>
+        <td>{{this.address}}</td>
+        <td>{{this.createAt}}</td>
+        <td>
+        <a href="/" class="btn-restore" data-id="{{this._id}}">Khôi phục</a>
+        <a href="#" class="btn-delete" data-id="{{this._id}}" data-name="{{this.name}}" data-bs-toggle="modal" data-bs-target="#model-delete">Xóa Vĩnh Viễn</a>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="8" class="text-center">
+         Thùng rác trống
+         <a href="/admin/user/manageruser">Danh Sách Người Dùng</a>
+        </td>
+      </tr>
+    {{/each}}
+
+  </tbody>
+
+</table>
+
+{{! Model Delete }}
+<div  class="modal fade" id="model-delete" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="form-delete" method="post" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Xoá Người Dùng</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Bạn có chắc chắn muốn xoá người dùng này?
+        </div>
+        <div class="modal-footer">
+          <button id="btn-delete-user" type="submit" class="btn btn-danger">Xoá</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{{!-- Delete Hidden Form --}}
+<form name="delete-user-form" method="POST"></form>
+<form name="restore-user-form" method="POST"></form>
+{{!-- Script --}}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var Userid;
+    var deleteForm = document.forms['delete-user-form'];
+    var restoreForm = document.forms['restore-user-form'];
+    var restoreBtn = $('.btn-restore')
+    $('#model-delete').on('show.bs.modal', function(event) {
+      var button = $(event.relatedTarget);
+      Userid = button.data('id');
+      console.log(Userid);
+    });
+
+    var btnDeleteUser = document.getElementById('btn-delete-user');
+
+  btnDeleteUser.onclick = function(e) {
+  e.preventDefault(); // Ngăn form bị submit sai cách
+  deleteForm.action = '/admin/user/' + Userid + '/destroy?_method=DELETE';
+  deleteForm.submit();
+}
+restoreBtn.click(function(e){
+    e.preventDefault();
+    var userId = $(this).data('id');  
+    restoreForm.action = '/admin/user/' + userId + '/restore?_method=PATCH';
+    restoreForm.submit();
+});
+  });
+</script>
+
