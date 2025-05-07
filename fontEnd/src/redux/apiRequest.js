@@ -51,44 +51,18 @@ export const loginUser = async (user, dispatch, navigate) => {
     dispatch(loginSuccess(res.data));
     localStorage.setItem("user", JSON.stringify(res.data)); // lưu thông tin user vào localStorage
     navigate("/"); // chuyển hướng sau khi đăng nhập thành công
-    toast.success("Đăng nhập thành công!"); // Thông báo thành công
   } catch (error) {
     dispatch(loginFailed());
-    if (error.response && error.response.data) {
-      // Nếu có lỗi trả về từ server, hiển thị thông báo lỗi từ server
-      toast.error(error.response.data.message || "Lỗi đăng nhập!"); // Thông báo lỗi
-    } else {
-      toast.error("Lỗi kết nối server!"); // Thông báo lỗi kết nối
-    }
-    console.error("Login failed:", error);
   }
 };
 // Register
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-    const res = await axios.post("http://localhost:8000/user/register", user);
+    await axios.post("http://localhost:8000/user/register", user);
     dispatch(registerSuccess());
-
-    // Trả lại thông điệp từ API để handleRegister có thể sử dụng
-    return res.data.message || "Đăng ký thành công!";
   } catch (error) {
     dispatch(registerFailed());
-
-    if (error.response) {
-      const data = error.response.data;
-
-      // Trả về thông báo lỗi từ API
-      if (data.errors) {
-        return data.errors.join("\n"); // Trả về lỗi validation
-      } else if (data.message) {
-        return data.message; // Trả về lỗi email trùng
-      } else {
-        return "Đăng ký thất bại! Vui lòng kiểm tra lại dữ liệu."; // Thông báo lỗi chung
-      }
-    } else {
-      return "Lỗi kết nối server! Vui lòng thử lại sau."; // Lỗi kết nối
-    }
   }
 };
 // Logout
@@ -339,5 +313,15 @@ export const updateProduct = async (productId, productData) => {
     console.log(response.data);
   } catch (error) {
     console.error("Error updating product:", error.response?.data);
+  }
+};
+// Categories Product
+export const Categories = async () => {
+  try {
+    const res = await axios.get("http://localhost:8000/categories/all");
+    return res.data; // chỉ trả data
+  } catch (error) {
+    console.error("Error fetching categories:", error.response?.data || error);
+    throw error;
   }
 };

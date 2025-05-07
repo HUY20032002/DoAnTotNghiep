@@ -13,6 +13,7 @@ import Home from "./Pages/Home";
 import AdminManagerProduct from "./Pages/Admin/ManagerProduct";
 import AdminManagerProductTrash from "./Pages/Admin/ManagerProduct/ManagerPtoductTrash";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Header />
       <Home />
       <Footer />
+      <ToastContainer />
       <Routes>
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />

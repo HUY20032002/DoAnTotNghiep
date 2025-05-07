@@ -13,7 +13,7 @@ function ConfirmDestroyProduct({ show, onClose, onConfirm, product }) {
     <div
       id="modal-overlay"
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm mt-[64px]">
       <div
         className="bg-white w-full max-w-md p-6 rounded-2xl shadow-lg"
         onClick={(e) => e.stopPropagation()}>

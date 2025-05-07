@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { createProduct, Categories } from "~/redux/apiRequest";
+import { useDispatch } from "react-redux";
 
 const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
   const [name, setName] = useState("");
@@ -10,18 +13,23 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
   const [image, setImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const fileInputRef = useRef(); // ref cho input file
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/categories/all")
-      .then((res) => {
-        if (Array.isArray(res.data?.data)) {
-          setCategories(res.data.data);
+    const fetchData = async () => {
+      try {
+        const catData = await Categories();
+        if (catData?.data && Array.isArray(catData.data)) {
+          setCategories(catData.data);
         } else {
-          console.error("Invalid categories:", res.data);
+          console.error("Invalid categories format:", catData);
         }
-      })
-      .catch((err) => console.error("Fetch error:", err));
+      } catch (error) {
+        console.error("Fetch data error:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -57,21 +65,18 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
       formData.append("category", category);
       formData.append("description", description);
       formData.append("image", image);
-
-      await axios.post("http://localhost:8000/product/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      await createProduct(dispatch, formData);
       onCreateSuccess();
       onClose();
+      toast.success("Thêm sản phẩm thành công");
     } catch (err) {
-      console.error("Upload error:", err.response?.data || err.message);
+      toast.error("Thêm sản phẩm thất bại");
     }
   };
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 mt-[64px] ${
         show
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"

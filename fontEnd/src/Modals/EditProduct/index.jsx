@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { updateProduct } from "~/redux/apiRequest";
+import { toast } from "react-toastify";
 
 const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
   const [name, setName] = useState("");
@@ -53,7 +54,7 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
     e.preventDefault();
 
     if (!product?._id) {
-      console.error("Không tìm thấy ID sản phẩm để cập nhật!");
+      toast.error("Không tìm thấy ID sản phẩm để cập nhật!");
       return;
     }
 
@@ -67,14 +68,20 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
       formData.append("image", image);
     }
 
-    await updateProduct(product._id, formData); // Đảm bảo product._id có giá trị
-    onCreateSuccess();
-    onClose(); // ← Bạn nên dùng onClose thay vì `show(false)`
+    try {
+      await updateProduct(product._id, formData);
+      toast.success("Cập nhật sản phẩm thành công!");
+      onCreateSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Update failed:", error);
+      toast.error("Cập nhật sản phẩm thất bại!");
+    }
   };
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 mt-[75px] ${
         show
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"

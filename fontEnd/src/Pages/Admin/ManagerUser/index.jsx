@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllUsers, SortDelete, UpdateUser } from "../../../redux/apiRequest";
 import EditUser from "~/Modals/EditUser";
-
+import { toast } from "react-toastify";
+import Breadcrumb from "~/components/Breadcrumb";
 const ManagerUser = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const userList = useSelector((state) => state.users.users?.allUsers);
@@ -23,9 +24,14 @@ const ManagerUser = () => {
   }, [user, dispatch, navigate]);
 
   const handleDelete = async (id) => {
-    if (user?.accessToken) {
-      await SortDelete(dispatch, id, user.accessToken);
-      getAllUsers(user.accessToken, dispatch);
+    try {
+      if (user?.accessToken) {
+        await SortDelete(dispatch, id, user.accessToken);
+        getAllUsers(user.accessToken, dispatch);
+        toast.success("Xóa người dùng thành công");
+      }
+    } catch (error) {
+      toast.error("Xóa người dùng thất bại");
     }
   };
 
@@ -36,33 +42,43 @@ const ManagerUser = () => {
   };
 
   const handleSaveUser = async (updatedUser) => {
-    if (user?.accessToken && currentUser?._id) {
-      await UpdateUser(
-        dispatch,
-        currentUser._id,
-        updatedUser,
-        user.accessToken
-      );
-      getAllUsers(user.accessToken, dispatch);
-      setShowModal(false);
+    try {
+      if (user?.accessToken && currentUser?._id) {
+        await UpdateUser(
+          dispatch,
+          currentUser._id,
+          updatedUser,
+          user.accessToken
+        );
+        getAllUsers(user.accessToken, dispatch);
+        toast.success("Chỉnh sửa người dùng thành công");
+        setShowModal(false);
+      }
+    } catch (error) {
+      toast.error("Chỉnh sửa người dùng thất bại");
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-[64px]">
+      <Breadcrumb />
       <EditUser
         show={showModal}
         onClose={() => setShowModal(false)}
         onSave={handleSaveUser}
         user={currentUser}
       />
-      <h1 className="text-2xl font-bold mb-2">Quản Lý Người Dùng</h1>
-      <Link
-        to="/admin/trashmanageruser"
-        className="text-blue-500 hover:underline mb-4 block">
-        Thùng Rác
-      </Link>
 
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Quản Lý Người Dùng</h1>
+        <div className="flex gap-2">
+          <Link
+            to="/admin/trashmanageruser"
+            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
+            Thùng Rác
+          </Link>
+        </div>
+      </div>
       <h2 className="mb-4">
         Your Role:{" "}
         <span className="font-semibold">{user?.admin ? "Admin" : "User"}</span>
@@ -90,15 +106,15 @@ const ManagerUser = () => {
                   <td className="py-2 px-4 border-b">{user.phone}</td>
                   <td className="py-2 px-4 border-b">{user.address}</td>
                   <td className="py-2 px-4 border-b">
-                    <div className="flex items-center justify-center gap-2 h-full">
+                    <div className="flex gap-2 h-full">
                       <button
-                        className="text-blue-600 border border-blue-600 p-2 rounded-md hover:bg-blue-500 hover:text-white transition duration-300"
+                        className="text-blue-600 border border-blue-600 p-3 rounded-md hover:bg-blue-500 hover:text-white transition duration-300"
                         onClick={() => handleUpdate(user._id)}>
                         <i className="fas fa-user-edit"></i>
                       </button>
 
                       <button
-                        className="text-red-600 border border-red-600 p-2 rounded-md hover:bg-red-500 hover:text-white transition duration-300"
+                        className="text-red-600 border border-red-600 p-3 rounded-md hover:bg-red-500 hover:text-white transition duration-300"
                         onClick={() => handleDelete(user._id)}>
                         <i className="fas fa-trash-alt"></i>
                       </button>

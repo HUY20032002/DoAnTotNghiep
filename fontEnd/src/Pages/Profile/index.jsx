@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateUser, logoutUser } from "../../redux/apiRequest";
 import React from "react";
-
+import Breadcrumb from "~/components/Breadcrumb";
+import { toast } from "react-toastify";
 function Profile() {
   const user = useSelector((state) => state.auth.login?.currentUser);
 
@@ -19,7 +19,12 @@ function Profile() {
   // Active Button
   const [activeTab, setActiveTab] = useState("info");
   const handleLogout = () => {
-    logoutUser(dispatch, id, navigate); // Xử lý logout
+    try {
+      logoutUser(dispatch, id, navigate); // Xử lý logout
+      toast.success("Đăng xuất thành công");
+    } catch (error) {
+      toast.error("Đăng xuất thất bại");
+    }
   };
   const handleUpate = async (UserId) => {
     const User = {
@@ -46,43 +51,14 @@ function Profile() {
   };
 
   return (
-    <div className="">
-      <ToastContainer />
-      <nav aria-label="Breadcrumb" className="bg-gray-200 w-full">
-        <ol className="p-1 flex items-center gap-1 text-sm text-gray-700 ">
-          <li>
-            <a href="/" className="block transition-colors hover:text-gray-900">
-              {" "}
-              Trang chủ{" "}
-            </a>
-          </li>
-          <li className="rtl:rotate-180">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="size-4"
-              viewBox="0 0 20 20"
-              fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </li>
-          <li>
-            <a
-              href="/profile"
-              className="block transition-colors hover:text-gray-900">
-              {" "}
-              Tài Khoản{" "}
-            </a>
-          </li>
-        </ol>
-      </nav>
+    <div className="mt-[64px]">
+      <Breadcrumb />
       <div className="grid grid-cols-[1fr_1px_3fr] container">
         {/* Cột vàng */}
         <div className=" p-4">
-          <div className="text-center">Trang Tài Khoản</div>
+          <div className="text-center">
+            <h2 className="font-bold">Trang Tài Khoản</h2>
+          </div>
           <div>
             <button
               onClick={() => setActiveTab("info")}

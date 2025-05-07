@@ -4,6 +4,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../redux/apiRequest";
+import { toast } from "react-toastify";
 
 function Header() {
   const [showMenu, setShowMenu] = useState(false);
@@ -13,11 +14,14 @@ function Header() {
   const navigate = useNavigate();
   const menuRef = useRef(null); // Tạo một ref cho dropdown menu
 
-  // Kiểm tra và điều hướng khi người dùng đăng nhập
-
   // Định nghĩa hàm handleLogout
   const handleLogout = () => {
-    logoutUser(dispatch, id, navigate); // Xử lý logout
+    try {
+      logoutUser(dispatch, id, navigate); // Xử lý logout
+      toast.success("Đăng xuất thành công");
+    } catch (error) {
+      toast.error("Đăng xuất thất bại");
+    }
   };
 
   // Đóng dropdown khi click ra ngoài
@@ -37,7 +41,7 @@ function Header() {
   }, []);
 
   return (
-    <header className="container">
+    <header className="container fixed top-0 left-0 right-0 z-60 bg-white shadow-md">
       <div className="content">
         <div className="left-content">
           <div className="logo">
