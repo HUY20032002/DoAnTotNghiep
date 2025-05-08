@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 import {
   getAllProducts,
   SortDeleteProduct,
   Categories,
 } from "~/redux/apiRequest";
-import CreateProduct from "~/Modals/CreateProduct";
-import EditProduct from "~/Modals/EditProduct";
+import CreateProductVariant from "~/Modals/CreateProductVariant";
+// import EditProduct from "~/Modals/EditProduct";
 import Breadcrumb from "~/components/Breadcrumb";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
-const Product = () => {
+const ProductVariant = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
     (state) => state.products.products?.allProducts
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  //   Lấy Id từ cha (Product)
+  const { id } = useParams();
 
   const [showModal, setShowModal] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [currentProduct, setCurrentProduct] = useState(null);
+  //   const [currentProduct, setCurrentProduct] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [totalPages, setTotalPages] = useState(1);
+  //   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("");
   useEffect(() => {
     if (!user?.accessToken) {
@@ -55,51 +58,56 @@ const Product = () => {
 
     fetchData();
   }, [user, dispatch, page, keyword, selectedCategory]);
-  const handleDelete = async (id) => {
-    try {
-      await SortDeleteProduct(dispatch, id, user.accessToken);
-      getAllProducts(
-        dispatch,
-        user.accessToken,
-        page,
-        keyword,
-        selectedCategory
-      );
-      toast.success("Xóa sản phẩm thành công");
-    } catch {
-      toast.error("Xóa sản phẩm thất bại");
-    }
-  };
-  const handleUpdate = (id) => {
-    const product = productList.find((p) => p._id === id);
-    if (!product) return;
-    setCurrentProduct(product);
-    setIsEditing(true);
-    setShowModal(true);
-  };
+
   const handleCreate = () => {
     setShowModal(true);
     setIsEditing(false);
   };
+  //   const handleDelete = async (id) => {
+  //     try {
+  //       await SortDeleteProduct(dispatch, id, user.accessToken);
+  //       getAllProducts(
+  //         dispatch,
+  //         user.accessToken,
+  //         page,
+  //         keyword,
+  //         selectedCategory
+  //       );
+  //       toast.success("Xóa sản phẩm thành công");
+  //     } catch {
+  //       toast.error("Xóa sản phẩm thất bại");
+  //     }
+  //   };
+  //   const handleUpdate = (id) => {
+  //     const product = productList.find((p) => p._id === id);
+  //     if (!product) return;
+  //     setCurrentProduct(product);
+  //     setIsEditing(true);
+  //     setShowModal(true);
+  //   };
+  //   const handleCreate = () => {
+  //     setShowModal(true);
+  //     setIsEditing(false);
+  //   };
   const handleCreateSuccess = () => {
     getAllProducts(dispatch, user.accessToken, page, keyword, selectedCategory);
   };
-
   return (
     <div className="container mx-auto p-4 mt-[64px]">
       <Breadcrumb />
-      <CreateProduct
+      <CreateProductVariant
         show={showModal && !isEditing}
         onClose={() => setShowModal(false)}
         onCreateSuccess={handleCreateSuccess}
+        productId={id}
       />
-      <EditProduct
+      {/* <EditProduct
         show={showModal && isEditing}
         onClose={() => setShowModal(false)}
         onCreateSuccess={handleCreateSuccess}
         product={currentProduct}
-      />
-      <h1 className="text-2xl font-bold">Quản Lý Sản Phẩm</h1>
+      /> */}
+      <h1 className="text-2xl font-bold">Quản Lý Biến Thể Sản Phẩm</h1>
       <div className="flex items-center justify-between mb-4">
         <div className="">
           {" "}
@@ -117,7 +125,7 @@ const Product = () => {
             }}
           />
         </div>
-        <select
+        {/* <select
           value={selectedCategory}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
@@ -130,7 +138,7 @@ const Product = () => {
               {cat.name}
             </option>
           ))}
-        </select>
+        </select> */}
         <div className="flex gap-3">
           <Link
             to="/admin/trashmanagerproduct"
@@ -140,11 +148,11 @@ const Product = () => {
           <button
             onClick={handleCreate}
             className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
-            Thêm Sản Phẩm
+            Thêm Biến Thể
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto bg-white rounded shadow">
+      {/* <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-gray-700 text-m uppercase">
             <tr>
@@ -184,12 +192,11 @@ const Product = () => {
                   </td>
                   <td className="py-2 px-4 text-center">
                     <div className="flex justify-center gap-3">
-                      <Link
-                        // onClick={() => handleOpenProductVariant(product._id)}
-                        to={`/admin/managerproductvariant/${product._id}`}
+                      <button
+                        // onClick={() => handleUpdate(product._id)}
                         className="text-green-600 border border-green-600 px-3 py-1 rounded hover:bg-green-500 hover:text-white transition">
                         <i className="fas fa-edit"></i>
-                      </Link>
+                      </button>
                       <button
                         onClick={() => handleUpdate(product._id)}
                         className="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-500 hover:text-white transition">
@@ -215,9 +222,9 @@ const Product = () => {
             )}
           </tbody>
         </table>
-      </div>
+      </div> */}
       {/* Phân trang */}
-      <div className="flex justify-center mt-4 gap-4">
+      {/* <div className="flex justify-center mt-4 gap-4">
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1 || totalPages === 1}
@@ -233,9 +240,9 @@ const Product = () => {
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
           Trang sau
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
 
-export default Product;
+export default ProductVariant;

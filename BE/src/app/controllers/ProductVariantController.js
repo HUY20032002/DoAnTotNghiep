@@ -4,6 +4,8 @@ class ProductVariantController {
   // Tạo biến thể sản phẩm mới
   createProductVariant = async (req, res) => {
     try {
+      console.log(req.body);
+      const { product_id, name, price, stock, size } = req.body;
       const productVariant = new ProductVariant(req.body);
       await productVariant.save();
       res.status(201).json(productVariant);

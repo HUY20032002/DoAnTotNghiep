@@ -238,14 +238,13 @@ export const getAllProducts = async (
       }
     );
     // Log dữ liệu trả về
-    console.log(res.data);
+    // console.log(res.data);
     // Cập nhật Redux state với dữ liệu sản phẩm
     dispatch(getAllProductsSuccess(res.data));
   } catch (err) {
     console.error("Fetch products error:", err);
   }
 };
-
 // GET ALL Trash PRODUCT
 export const getTrashAllProducts = async (
   dispatch,
@@ -287,7 +286,6 @@ export const createProduct = async (dispatch, formData) => {
     console.error("Create Product failed:", error);
   }
 };
-
 // SORT DELETE PRODUCT
 export const SortDeleteProduct = async (dispatch, id, accessToken) => {
   dispatch(deleteProductStart()); // Dispatching delete start action
@@ -363,5 +361,21 @@ export const Categories = async () => {
   } catch (error) {
     console.error("Error fetching categories:", error.response?.data || error);
     throw error;
+  }
+};
+export const createProductVariant = async (dispatch, formData) => {
+  dispatch(createStart());
+  try {
+    await axios.post("http://localhost:8000/productvariant/create", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    dispatch(createSuccess()); // Giải quyết res.data thay vì chỉ gọi dispatch
+    toast.success("Thêm sản phẩm thành công!"); // Thông báo thành công
+  } catch (error) {
+    dispatch(createFailed());
+    toast.error("Thêm sản phẩm thất bại!"); // Thông báo lỗi
+    console.error("Create Product failed:", error);
   }
 };

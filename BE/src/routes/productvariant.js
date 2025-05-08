@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const upload = multer(); // Không cần lưu file => dùng bộ nhớ tạm
 const ProductVariantController = require("../app/controllers/ProductVariantController");
 
 // Tạo biến thể sản phẩm mới
-router.post("/", ProductVariantController.createProductVariant);
-
+router.post(
+  "/create",
+  upload.none(),
+  ProductVariantController.createProductVariant
+);
 // Lấy tất cả biến thể của sản phẩm (theo product_id)
 router.get("/:productId", ProductVariantController.getAllProductVariants);
 
