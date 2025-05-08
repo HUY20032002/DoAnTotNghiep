@@ -11,7 +11,7 @@ import EditProduct from "~/Modals/EditProduct";
 import Breadcrumb from "~/components/Breadcrumb";
 import { toast } from "react-toastify";
 
-const ManagerProduct = () => {
+const Product = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
     (state) => state.products.products?.allProducts
@@ -27,7 +27,6 @@ const ManagerProduct = () => {
   const [keyword, setKeyword] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("");
-
   useEffect(() => {
     if (!user?.accessToken) {
       navigate("/login");
@@ -57,7 +56,6 @@ const ManagerProduct = () => {
 
     fetchData();
   }, [user, dispatch, page, keyword, selectedCategory]);
-
   const handleDelete = async (id) => {
     try {
       await SortDeleteProduct(dispatch, id, user.accessToken);
@@ -73,7 +71,6 @@ const ManagerProduct = () => {
       toast.error("Xóa sản phẩm thất bại");
     }
   };
-
   const handleUpdate = (id) => {
     const product = productList.find((p) => p._id === id);
     if (!product) return;
@@ -81,16 +78,13 @@ const ManagerProduct = () => {
     setIsEditing(true);
     setShowModal(true);
   };
-
   const handleCreate = () => {
     setShowModal(true);
     setIsEditing(false);
   };
-
   const handleCreateSuccess = () => {
     getAllProducts(dispatch, user.accessToken, page, keyword, selectedCategory);
   };
-
   return (
     <div className="container mx-auto p-4 mt-[64px]">
       <Breadcrumb />
@@ -137,7 +131,6 @@ const ManagerProduct = () => {
             </option>
           ))}
         </select>
-
         <div className="flex gap-3">
           <Link
             to="/admin/trashmanagerproduct"
@@ -151,7 +144,6 @@ const ManagerProduct = () => {
           </button>
         </div>
       </div>
-
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-gray-700 text-m uppercase">
@@ -191,7 +183,12 @@ const ManagerProduct = () => {
                       "Không rõ"}
                   </td>
                   <td className="py-2 px-4 text-center">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-3">
+                      <button
+                        // onClick={() => handleUpdate(product._id)}
+                        className="text-green-600 border border-green-600 px-3 py-1 rounded hover:bg-green-500 hover:text-white transition">
+                        <i className="fas fa-edit"></i>
+                      </button>
                       <button
                         onClick={() => handleUpdate(product._id)}
                         className="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-500 hover:text-white transition">
@@ -240,4 +237,4 @@ const ManagerProduct = () => {
   );
 };
 
-export default ManagerProduct;
+export default Product;

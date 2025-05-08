@@ -6,7 +6,7 @@ import EditUser from "~/Modals/EditUser";
 import { toast } from "react-toastify";
 import Breadcrumb from "~/components/Breadcrumb";
 
-const ManagerUser = () => {
+const User = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const userList = useSelector((state) => state.users.users?.allUsers);
   const dispatch = useDispatch();
@@ -177,4 +177,4 @@ const ManagerUser = () => {
   );
 };
 
-export default ManagerUser;
+export default User;

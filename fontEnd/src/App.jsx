@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import React from "react";
-import AdminManagerUser from "./Pages/Admin/ManagerUser";
-import AdminTrashManagerUser from "./Pages/Admin/ManagerUser/TrashManagerUser";
+import User from "./Pages/Admin/User";
+import TrashUser from "./Pages/Admin/User/UserTrash";
 import Admin from "./Pages/Admin";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
@@ -10,11 +10,10 @@ import Register from "./Pages/Register";
 import ForgotPassword from "./Pages/ForgotPassword";
 import Profile from "./Pages/Profile";
 import Home from "./Pages/Home";
-import AdminManagerProduct from "./Pages/Admin/ManagerProduct";
-import AdminManagerProductTrash from "./Pages/Admin/ManagerProduct/ManagerPtoductTrash";
+import Product from "./Pages/Admin/Product";
+import ProductTrash from "./Pages/Admin/Product/ProductTrash";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
-
 function App() {
   return (
     <>
@@ -24,11 +23,8 @@ function App() {
       <Routes>
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/manageruser" element={<AdminManagerUser />} />
-        <Route
-          path="/admin/trashmanageruser"
-          element={<AdminTrashManagerUser />}
-        />
+        <Route path="/admin/manageruser" element={<User />} />
+        <Route path="/admin/trashmanageruser" element={<TrashUser />} />
 
         {/* User */}
         <Route path="/login" element={<Login />} />
@@ -38,11 +34,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
 
         {/* Product */}
-        <Route path="/admin/managerproduct" element={<AdminManagerProduct />} />
-        <Route
-          path="/admin/trashmanagerproduct"
-          element={<AdminManagerProductTrash />}
-        />
+        <Route path="/admin/managerproduct" element={<Product />} />
+        <Route path="/admin/trashmanagerproduct" element={<ProductTrash />} />
       </Routes>
       <ToastContainer position="bottom-right" />
     </>

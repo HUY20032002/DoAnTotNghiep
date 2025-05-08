@@ -11,7 +11,7 @@ import ConfirmDestroyProduct from "~/Modals/ConfirmDestroyProduct"; // Modal ch�
 import { toast } from "react-toastify";
 import Breadcrumb from "~/components/Breadcrumb"; // chỉnh lại đường dẫn nếu khác
 
-const ManagerPtoductTrash = () => {
+const ProductTrash = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
     (state) => state.products.products?.allProducts
@@ -252,4 +252,4 @@ const ManagerPtoductTrash = () => {
   );
 };
 
-export default ManagerPtoductTrash;
+export default ProductTrash;

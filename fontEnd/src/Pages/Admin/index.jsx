@@ -19,7 +19,6 @@ const Admin = () => {
           Quản lý sản phẩm
         </Link>
       </div>
-
       {/* <div className="bg-white p-4 rounded shadow">
         <Outlet />
       </div> */}

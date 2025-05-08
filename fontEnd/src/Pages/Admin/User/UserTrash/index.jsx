@@ -8,7 +8,7 @@ import ConfirmDestroyUser from "~/Modals/ConfirmDestroyUser";
 import { toast } from "react-toastify";
 import Breadcrumb from "~/components/Breadcrumb";
 
-const TrashManagerUser = () => {
+const UserTrash = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const userList = useSelector((state) => state.users.users?.allUsers);
   const dispatch = useDispatch();
@@ -168,4 +168,4 @@ const TrashManagerUser = () => {
   );
 };
 
-export default TrashManagerUser;
+export default UserTrash;
