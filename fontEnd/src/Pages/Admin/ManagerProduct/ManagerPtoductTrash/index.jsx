@@ -23,6 +23,10 @@ const ManagerPtoductTrash = () => {
   const [showDestroyModal, setShowDestroyModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   // Fetch categories and trash products
 
@@ -31,22 +35,29 @@ const ManagerPtoductTrash = () => {
       navigate("/login");
       return;
     }
+
     const fetchData = async () => {
       try {
         const catData = await Categories();
         if (catData?.data && Array.isArray(catData.data)) {
           setCategories(catData.data);
-        } else {
-          console.error("Invalid categories format:", catData);
         }
-        getTrashAllProducts(dispatch, user.accessToken);
+
+        // Log dữ liệu trả về từ API
+        await getTrashAllProducts(
+          dispatch,
+          user.accessToken,
+          page,
+          keyword,
+          selectedCategory
+        );
       } catch (error) {
         console.error("Fetch data error:", error);
       }
     };
 
     fetchData();
-  }, [user, navigate, dispatch]);
+  }, [user, dispatch, page, keyword, selectedCategory]);
 
   const handleDelete = (product) => {
     setCurrentProduct(product); // Lưu sản phẩm vào currentProduct
@@ -57,7 +68,13 @@ const ManagerPtoductTrash = () => {
     try {
       if (user?.accessToken && currentProduct?._id) {
         await destroyProduct(dispatch, currentProduct._id, user.accessToken);
-        getTrashAllProducts(dispatch, user.accessToken);
+        getTrashAllProducts(
+          dispatch,
+          user.accessToken,
+          page,
+          keyword,
+          selectedCategory
+        );
         setShowDestroyModal(false);
         setCurrentProduct(null);
         toast.success("Xóa sản phẩm vĩnh viễn thành công");
@@ -72,7 +89,13 @@ const ManagerPtoductTrash = () => {
       if (user?.accessToken) {
         await restoreProduct(dispatch, id, user.accessToken);
         toast.success("Khôi phục sản phẩm thành công");
-        getTrashAllProducts(dispatch, user.accessToken); // Load tất cả sản phẩm
+        getTrashAllProducts(
+          dispatch,
+          user.accessToken,
+          page,
+          keyword,
+          selectedCategory
+        );
       }
     } catch (error) {
       toast.error("Khôi phục sản phẩm thất bại");
@@ -96,8 +119,38 @@ const ManagerPtoductTrash = () => {
         show={showDestroyModal}
         product={currentProduct}
       />
+      <h1 className="text-2xl font-bold">Thùng Rác Sản Phẩm</h1>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Thùng Rác Sản Phẩm</h1>
+        <div className="">
+          {" "}
+          <label htmlFor="" className="p-2 font-bold">
+            Tìm kiếm:
+          </label>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên..."
+            className="border rounded px-3 py-2 my-3"
+            value={keyword}
+            onChange={(e) => {
+              setPage(1);
+              setKeyword(e.target.value);
+            }}
+          />
+        </div>
+        <select
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setPage(1);
+          }}
+          className="border px-3 py-2 rounded">
+          <option value="">Tất cả danh mục</option>
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
         <div className="flex gap-2">
           <Link
             to="/admin/managerproduct"
@@ -176,6 +229,24 @@ const ManagerPtoductTrash = () => {
             )}
           </tbody>
         </table>
+      </div>
+      {/* Phân trang */}
+      <div className="flex justify-center mt-4 gap-4">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1 || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang trước
+        </button>
+        <span className="self-center">
+          Trang {page} / {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang sau
+        </button>
       </div>
     </div>
   );

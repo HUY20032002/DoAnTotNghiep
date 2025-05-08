@@ -13,14 +13,23 @@ const TrashManagerUser = () => {
   const userList = useSelector((state) => state.users.users?.allUsers);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     } else if (user?.accessToken) {
-      getTrashAllUsers(user.accessToken, dispatch);
+      getTrashAllUsers(
+        user.accessToken,
+        dispatch,
+        page,
+        keyword,
+        setTotalPages
+      );
     }
-  }, [user, dispatch, navigate]);
+  }, [user, dispatch, navigate, page, keyword]);
 
   const [showDestroyModal, setShowDestroyModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -30,7 +39,7 @@ const TrashManagerUser = () => {
     try {
       if (user?.accessToken) {
         await restoreUser(dispatch, id, user.accessToken);
-        getTrashAllUsers(user.accessToken, dispatch);
+        getTrashAllUsers(user.accessToken, dispatch, page, keyword, setPage);
       }
       toast.success("Khôi phục người dùng thành công");
     } catch (error) {
@@ -47,7 +56,7 @@ const TrashManagerUser = () => {
     try {
       if (user?.accessToken && currentUser?._id) {
         await DestroyUser(dispatch, currentUser._id, user.accessToken);
-        getTrashAllUsers(user.accessToken, dispatch);
+        getTrashAllUsers(user.accessToken, dispatch, page, keyword, setPage);
         setShowDestroyModal(false);
         setCurrentUser(null);
         toast.success("Xóa vĩnh viễn người dùng thành công");
@@ -67,9 +76,24 @@ const TrashManagerUser = () => {
         onConfirm={confirmDestroy}
         user={currentUser}
       />
-
+      <h1 className="text-2xl font-bold">Người Dùng Đã Xóa</h1>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Người Dùng Đã Xóa</h1>
+        <div className="">
+          {" "}
+          <label htmlFor="" className="p-2 font-bold">
+            Tìm kiếm:
+          </label>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên..."
+            className="border rounded px-3 py-2 my-3"
+            value={keyword}
+            onChange={(e) => {
+              setPage(1);
+              setKeyword(e.target.value);
+            }}
+          />
+        </div>
         <div className="flex gap-2">
           <Link
             to="/admin/manageruser"
@@ -78,11 +102,6 @@ const TrashManagerUser = () => {
           </Link>
         </div>
       </div>
-      <h2 className="mb-6">
-        Your Role:{" "}
-        <span className="font-semibold">{user?.admin ? "Admin" : "User"}</span>
-      </h2>
-
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
           <thead className="bg-gray-100">
@@ -127,6 +146,23 @@ const TrashManagerUser = () => {
             )}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center mt-4 gap-4">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1 || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang trước
+        </button>
+        <span className="self-center">
+          Trang {page} / {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang sau
+        </button>
       </div>
     </div>
   );

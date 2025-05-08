@@ -7,6 +7,8 @@ const productSlice = createSlice({
       allProducts: null,
       isFetching: false,
       error: false,
+      totalPages: 1,
+      currentPage: 1,
     },
     msg: "",
   },
@@ -78,9 +80,14 @@ const productSlice = createSlice({
       state.products.error = true;
       state.products.success = false;
     },
+    getAllProductsSuccess: (state, action) => {
+      state.products.isFetching = false;
+      state.products.allProducts = action.payload.products; // Cập nhật danh sách sản phẩm
+      state.products.totalPages = action.payload.totalPages; // Cập nhật tổng số trang
+      state.products.currentPage = action.payload.currentPage; // Cập nhật trang hiện tại
+    },
   },
 });
-
 export const {
   getProductsStart,
   getProductsSuccess,
@@ -97,6 +104,7 @@ export const {
   createStart,
   createSuccess,
   createFailed,
+  getAllProductsSuccess,
 } = productSlice.actions;
 
 export default productSlice.reducer;

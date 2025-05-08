@@ -71,19 +71,25 @@ const ManagerUser = () => {
         onSave={handleSaveUser}
         user={currentUser}
       />
-
+      <h1 className="text-2xl font-bold">Quản Lý Người Dùng</h1>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Quản Lý Người Dùng</h1>
-        <input
-          type="text"
-          placeholder="Tìm kiếm theo tên..."
-          className="border rounded px-3 py-2"
-          value={keyword}
-          onChange={(e) => {
-            setPage(1);
-            setKeyword(e.target.value);
-          }}
-        />
+        {" "}
+        <div className="">
+          {" "}
+          <label htmlFor="" className="p-2 font-bold">
+            Tìm kiếm:
+          </label>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên..."
+            className="border rounded px-3 py-2 my-3"
+            value={keyword}
+            onChange={(e) => {
+              setPage(1);
+              setKeyword(e.target.value);
+            }}
+          />
+        </div>
         <Link
           to="/admin/trashmanageruser"
           className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
@@ -91,10 +97,10 @@ const ManagerUser = () => {
         </Link>
       </div>
 
-      <h2 className="mb-4">
+      {/* <h2 className="mb-4">
         Your Role:{" "}
         <span className="font-semibold">{user?.admin ? "Admin" : "User"}</span>
-      </h2>
+      </h2> */}
 
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 shadow rounded-lg">

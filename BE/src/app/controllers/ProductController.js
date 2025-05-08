@@ -47,26 +47,81 @@ class ProductController {
 
   // Các phương thức khác không thay đổi
   async getAllProducts(req, res, next) {
-    await Product.find({})
-      .then((products) => {
-        res.status(200).json({
-          products: mutipleMongooseToObject(products),
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({ error: err.message });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const keyword = req.query.keyword || "";
+    const category = req.query.category || null;
+    const skip = (page - 1) * limit;
+
+    // Tạo query tìm kiếm (bao gồm tên và mô tả)
+    const query = {
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    };
+
+    // Nếu có category, thêm điều kiện lọc category
+    if (category) {
+      query.category = category; // Cần đảm bảo category là ObjectId
+    }
+
+    try {
+      // Lấy sản phẩm và tổng số sản phẩm cùng lúc (để tính tổng số trang)
+      const [products, count] = await Promise.all([
+        Product.find(query).skip(skip).limit(limit), // Áp dụng phân trang
+        Product.countDocuments(query), // Lấy tổng số sản phẩm theo query
+      ]);
+
+      res.status(200).json({
+        products: mutipleMongooseToObject(products),
+        totalPages: Math.max(1, Math.ceil(count / limit)), // Tính tổng số trang
+        currentPage: page,
       });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
+
   async getAllProductsTrash(req, res, next) {
-    Product.findDeleted({})
-      .where("deleted")
-      .equals(true)
-      .then((products) =>
-        res.status(200).json({
-          products: mutipleMongooseToObject(products),
-        })
-      )
-      .catch(next);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const keyword = req.query.keyword || "";
+    const category = req.query.category || null;
+    const skip = (page - 1) * limit;
+
+    // Tạo query tìm kiếm (bao gồm tên và mô tả)
+    const query = {
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    };
+
+    // Nếu có category, thêm điều kiện lọc category
+    if (category) {
+      query.category = category; // Cần đảm bảo category là ObjectId
+    }
+
+    try {
+      // Lấy sản phẩm và tổng số sản phẩm cùng lúc (để tính tổng số trang)
+      const [products, count] = await Promise.all([
+        Product.findDeleted(query)
+          .skip(skip)
+          .limit(limit)
+          .where("deleted")
+          .equals(true), // Áp dụng phân trang
+        Product.countDocuments(query), // Lấy tổng số sản phẩm theo query
+      ]);
+
+      res.status(200).json({
+        products: mutipleMongooseToObject(products),
+        totalPages: Math.max(1, Math.ceil(count / limit)), // Tính tổng số trang
+        currentPage: page,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 
   // Lấy thông tin chi tiết một sản phẩm

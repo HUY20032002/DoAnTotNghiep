@@ -40,6 +40,7 @@ import {
   createStart,
   createSuccess,
   createFailed,
+  getAllProductsSuccess,
 } from "./productSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -127,20 +128,29 @@ export const getAllUsers = async (
   }
 };
 // GET TRASH USER
-export const getTrashAllUsers = async (accessToken, dispatch) => {
+export const getTrashAllUsers = async (
+  token,
+  dispatch,
+  page = 1,
+  keyword = "",
+  setTotalPages
+) => {
   dispatch(getUsersStart());
   try {
     const res = await axios.get(
-      "http://localhost:8000/admin/user/trash-manageruser",
+      `http://localhost:8000/admin/user/trash-manageruser?page=${page}&limit=5&keyword=${keyword}`,
       {
-        headers: { token: `Bearer ${accessToken}` },
+        headers: { token: `Bearer ${token}` },
       }
     );
-
-    dispatch(getUsersSuccess(res.data));
-  } catch (error) {
+    dispatch(getUsersSuccess({ users: res.data.users }));
+    if (setTotalPages) {
+      const pages = Math.max(1, res.data.totalPages); // Luôn có ít nhất 1 trang
+      setTotalPages(pages);
+    }
+  } catch (err) {
     dispatch(getUsersFailed());
-    console.error("Register failed:", error);
+    console.error("Lỗi lấy danh sách người dùng:", err);
   }
 };
 // SORT DELETE
@@ -212,29 +222,52 @@ export const UpdateUser = async (dispatch, id, data, accessToken) => {
   }
 };
 // GET ALL PRODUCT
-export const getAllProducts = async (dispatch, accessToken) => {
-  dispatch(getProductsStart());
+export const getAllProducts = async (
+  dispatch,
+  token,
+  page = 1,
+  keyword = "",
+  category = ""
+) => {
   try {
-    const res = await axios.get("http://localhost:8000/product", {
-      headers: { token: `Bearer ${accessToken}` },
-    });
-    dispatch(getProductsSuccess({ products: res.data.products }));
-  } catch (error) {
-    dispatch(getProductsFailed());
-    console.error("Get Product failed:", error);
+    const categoryParam = category ? `&category=${category}` : "";
+    const res = await axios.get(
+      `http://localhost:8000/product/?page=${page}&limit=5&keyword=${keyword}${categoryParam}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    // Log dữ liệu trả về
+    console.log(res.data);
+    // Cập nhật Redux state với dữ liệu sản phẩm
+    dispatch(getAllProductsSuccess(res.data));
+  } catch (err) {
+    console.error("Fetch products error:", err);
   }
 };
+
 // GET ALL Trash PRODUCT
-export const getTrashAllProducts = async (dispatch, accessToken) => {
-  dispatch(getProductsStart());
+export const getTrashAllProducts = async (
+  dispatch,
+  token,
+  page = 1,
+  keyword = "",
+  category = ""
+) => {
   try {
-    const res = await axios.get("http://localhost:8000/product/trash", {
-      headers: { token: `Bearer ${accessToken}` },
-    });
-    dispatch(getProductsSuccess({ products: res.data.products }));
-  } catch (error) {
-    dispatch(getProductsFailed());
-    console.error("Get Product failed:", error);
+    const categoryParam = category ? `&category=${category}` : "";
+    const res = await axios.get(
+      `http://localhost:8000/product/trash?page=${page}&limit=5&keyword=${keyword}${categoryParam}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    // Log dữ liệu trả về
+    console.log(res.data);
+    // Cập nhật Redux state với dữ liệu sản phẩm
+    dispatch(getAllProductsSuccess(res.data));
+  } catch (err) {
+    console.error("Fetch products error:", err);
   }
 };
 // CreateProduct

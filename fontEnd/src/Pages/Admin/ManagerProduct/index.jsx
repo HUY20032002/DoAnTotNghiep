@@ -23,31 +23,51 @@ const ManagerProduct = () => {
   const [categories, setCategories] = useState([]);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     if (!user?.accessToken) {
       navigate("/login");
       return;
     }
+
     const fetchData = async () => {
       try {
         const catData = await Categories();
         if (catData?.data && Array.isArray(catData.data)) {
           setCategories(catData.data);
         }
-        getAllProducts(dispatch, user.accessToken);
+
+        // Log dữ liệu trả về từ API
+        const response = await getAllProducts(
+          dispatch,
+          user.accessToken,
+          page,
+          keyword,
+          selectedCategory
+        );
+        console.log("Products fetched:", response); // Kiểm tra dữ liệu API
       } catch (error) {
         console.error("Fetch data error:", error);
       }
     };
 
     fetchData();
-  }, [user, navigate, dispatch]);
+  }, [user, dispatch, page, keyword, selectedCategory]);
 
   const handleDelete = async (id) => {
     try {
       await SortDeleteProduct(dispatch, id, user.accessToken);
-      getAllProducts(dispatch, user.accessToken);
+      getAllProducts(
+        dispatch,
+        user.accessToken,
+        page,
+        keyword,
+        selectedCategory
+      );
       toast.success("Xóa sản phẩm thành công");
     } catch {
       toast.error("Xóa sản phẩm thất bại");
@@ -68,7 +88,7 @@ const ManagerProduct = () => {
   };
 
   const handleCreateSuccess = () => {
-    getAllProducts(dispatch, user.accessToken);
+    getAllProducts(dispatch, user.accessToken, page, keyword, selectedCategory);
   };
 
   return (
@@ -85,8 +105,39 @@ const ManagerProduct = () => {
         onCreateSuccess={handleCreateSuccess}
         product={currentProduct}
       />
+      <h1 className="text-2xl font-bold">Quản Lý Sản Phẩm</h1>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Quản Lý Sản Phẩm</h1>
+        <div className="">
+          {" "}
+          <label htmlFor="" className="p-2 font-bold">
+            Tìm kiếm:
+          </label>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên..."
+            className="border rounded px-3 py-2 my-3"
+            value={keyword}
+            onChange={(e) => {
+              setPage(1);
+              setKeyword(e.target.value);
+            }}
+          />
+        </div>
+        <select
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            setPage(1);
+          }}
+          className="border px-3 py-2 rounded">
+          <option value="">Tất cả danh mục</option>
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+
         <div className="flex gap-3">
           <Link
             to="/admin/trashmanagerproduct"
@@ -166,6 +217,24 @@ const ManagerProduct = () => {
             )}
           </tbody>
         </table>
+      </div>
+      {/* Phân trang */}
+      <div className="flex justify-center mt-4 gap-4">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1 || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang trước
+        </button>
+        <span className="self-center">
+          Trang {page} / {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={page === totalPages || totalPages === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
+          Trang sau
+        </button>
       </div>
     </div>
   );

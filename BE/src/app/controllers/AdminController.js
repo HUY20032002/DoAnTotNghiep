@@ -72,19 +72,41 @@ class AdminController {
   }
   // [GET] admin/user/ trash_manageruser
   trash_manageruser(req, res, next) {
-    User.findDeleted({ admin: false })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const keyword = req.query.keyword || "";
+    const skip = (page - 1) * limit;
+
+    const searchQuery = {
+      admin: false,
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { email: { $regex: keyword, $options: "i" } },
+      ],
+    };
+
+    User.findDeleted(searchQuery)
       .where("deleted")
       .equals(true)
-      .then((users) =>
-        res.status(200).json({
-          users: mutipleMongooseToObject(users),
-        })
-      )
+      .skip(skip)
+      .limit(limit)
+      .then((users) => {
+        // Lưu ý: dùng lại findDeleted + where để đếm đúng user đã xóa
+        User.findDeleted(searchQuery)
+          .where("deleted")
+          .equals(true)
+          .countDocuments()
+          .then((count) => {
+            res.json({
+              users: mutipleMongooseToObject(users),
+              totalPages: Math.max(1, Math.ceil(count / limit)),
+              currentPage: page,
+            });
+          });
+      })
       .catch(next);
   }
-
   // [PATCh] admin/user/restore
-
   restoreUser(req, res, next) {
     User.restore({ _id: req.params.id })
       .then(() => {
@@ -99,7 +121,6 @@ class AdminController {
       })
       .catch((error) => next(error)); // lỗi thì đẩy về middleware
   }
-
   // [DELETE] admin/user/destroy/:id
   destroyUser(req, res, next) {
     User.findByIdAndDelete(req.params.id)
