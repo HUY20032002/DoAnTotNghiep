@@ -21,7 +21,6 @@ function App() {
       <Header />
       <Home />
       <Footer />
-      <ToastContainer />
       <Routes>
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
@@ -45,6 +44,7 @@ function App() {
           element={<AdminManagerProductTrash />}
         />
       </Routes>
+      <ToastContainer position="bottom-right" />
     </>
   );
 }

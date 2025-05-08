@@ -1,16 +1,37 @@
 const User = require("../model/User");
 const { mutipleMongooseToObject } = require("../../util/mongoose");
 const { mongooseToObject } = require("../../util/mongoose");
+const { search } = require("../../routes/admin");
 
 class AdminController {
   // [POST] admin/user/manageruser
   manageruser(req, res, next) {
-    User.find({
+    // Trang đầu là 1
+    const page = parseInt(req.query.page) || 1;
+    // Giới hạn trang
+    const limit = parseInt(req.query.limit) || 5;
+    const keyword = req.query.keyword || "";
+    const skip = (page - 1) * limit;
+
+    // Tìm người dùng không phải admin và khớp tên
+    const searchQuery = {
       admin: false,
-    })
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { email: { $regex: keyword, $options: "i" } },
+      ],
+    };
+
+    User.find(searchQuery)
+      .skip(skip)
+      .limit(limit)
       .then((users) => {
-        res.json({
-          users: mutipleMongooseToObject(users),
+        User.countDocuments(searchQuery).then((count) => {
+          res.json({
+            users: mutipleMongooseToObject(users),
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+          });
         });
       })
       .catch(next);

@@ -104,19 +104,26 @@ export const forgotPassword = async (dispatch, user, navigate) => {
   }
 };
 // GET ALL USER
-export const getAllUsers = async (token, dispatch) => {
+export const getAllUsers = async (
+  token,
+  dispatch,
+  page = 1,
+  keyword = "",
+  setTotalPages
+) => {
   dispatch(getUsersStart());
   try {
     const res = await axios.get(
-      "http://localhost:8000/admin/user/manageruser",
+      `http://localhost:8000/admin/user/manageruser?page=${page}&limit=5&keyword=${keyword}`,
       {
         headers: { token: `Bearer ${token}` },
       }
     );
     dispatch(getUsersSuccess({ users: res.data.users }));
+    if (setTotalPages) setTotalPages(res.data.totalPages); // Cập nhật tổng số trang
   } catch (err) {
-    // Dispatch thất bại nếu có lỗi
     dispatch(getUsersFailed());
+    console.error("Lỗi lấy danh sách người dùng:", err);
   }
 };
 // GET TRASH USER
