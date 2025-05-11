@@ -30,7 +30,6 @@ router.get("/trash", productController.getAllProductsTrash);
 router.get("/:id", productController.getProductById);
 
 // Cập nhật thông tin sản phẩm
-
 router.put("/:id", upload.single("image"), productController.updateProduct);
 
 // Xóa sản phẩm (soft delete)

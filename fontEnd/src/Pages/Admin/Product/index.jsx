@@ -186,7 +186,7 @@ const Product = () => {
                     <div className="flex justify-center gap-3">
                       <Link
                         // onClick={() => handleOpenProductVariant(product._id)}
-                        to={`/admin/managerproductvariant/${product._id}`}
+                        to={`/admin/managerproduct/managerproductvariant/${product._id}`}
                         className="text-green-600 border border-green-600 px-3 py-1 rounded hover:bg-green-500 hover:text-white transition">
                         <i className="fas fa-edit"></i>
                       </Link>

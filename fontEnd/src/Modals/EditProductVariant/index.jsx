@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { createProductVariant } from "~/redux/apiRequest";
+import { updateProductVariant } from "~/redux/apiRequest";
 import { useDispatch } from "react-redux";
 
-const CreateProductVariant = ({
+const EditProductVariant = ({
   show,
   onClose,
   onCreateSuccess,
   productId,
+  productVariant,
 }) => {
   const [productName, setProductName] = useState("");
   const [product_id, setProductId] = useState(productId);
@@ -37,38 +38,45 @@ const CreateProductVariant = ({
     if (productId) setProductId(productId);
     if (productId) fetchProductName();
   }, [productId]);
-
-  // RESET FORM
-  const resetForm = () => {
-    setPrice("");
-    setStock("");
-    setSize("");
-  };
-
-  // Reset khi show = true
   useEffect(() => {
-    if (!show) return;
-    resetForm();
-  }, [show]);
+    if (productVariant) {
+      setPrice(productVariant.price || "");
+      setStock(productVariant.stock || "");
+      setSize(productVariant.size || "");
+    }
+  }, [productVariant]); // Chỉ chạy khi `productVariant` thay đổi
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!price || !stock || !size) {
+      toast.error("Vui lòng điền đầy đủ thông tin (Giá, Số lượng, Size).");
+      return;
+    }
+
     try {
-      const formData = new FormData();
-      formData.append("product_id", product_id);
-      formData.append("price", price);
-      formData.append("stock", stock);
-      formData.append("size", size);
-      const result = await createProductVariant(dispatch, formData);
-      if (!result.success) {
-        toast.error(result.error); // thông báo lỗi size trùng, hoặc lỗi khác
-      } else {
-        toast.success("Tạo biến thể thành công");
+      const data = {
+        product_id,
+        price,
+        stock,
+        size,
+      };
+
+      const result = await updateProductVariant(
+        dispatch,
+        data,
+        productVariant._id
+      );
+      if (result.success) {
+        toast.success("Sửa sản phẩm thành công");
         onCreateSuccess();
         onClose();
+      } else {
+        toast.error(result.error || "Sửa sản phẩm thất bại");
       }
     } catch (err) {
-      toast.error("Thêm sản phẩm thất bại");
+      toast.error("Đã xảy ra lỗi khi sửa sản phẩm");
+      console.error(err);
     }
   };
 
@@ -133,7 +141,7 @@ const CreateProductVariant = ({
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              Thêm biến thể
+              Sửa biến thể
             </button>
           </div>
         </form>
@@ -142,4 +150,4 @@ const CreateProductVariant = ({
   );
 };
 
-export default CreateProductVariant;
+export default EditProductVariant;

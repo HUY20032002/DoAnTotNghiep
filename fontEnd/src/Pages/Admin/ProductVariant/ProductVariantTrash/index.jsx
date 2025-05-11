@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-
-import { getProductVariant, deleteProductVariant } from "~/redux/apiRequest";
-import CreateProductVariant from "~/Modals/CreateProductVariant";
-import EditProductVariant from "~/Modals/EditProductVariant";
+import {
+  getTrashProductVariant,
+  restoreProductVariant,
+} from "~/redux/apiRequest";
 import Breadcrumb from "~/components/Breadcrumb";
 import { toast } from "react-toastify";
 
-const ProductVariant = () => {
+const ProductVariantTrash = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
     (state) => state.products.products?.allProducts
@@ -26,65 +26,38 @@ const ProductVariant = () => {
       navigate("/login");
       return;
     } else {
-      getProductVariant(dispatch, id);
+      getTrashProductVariant(dispatch, id);
     }
   }, [user, dispatch]);
 
-  const handleCreate = () => {
-    setShowModal(true);
-    setIsEditing(false);
-  };
-  const handleUpdate = (id) => {
-    const product = productList.find((p) => p._id === id);
-    if (!product) return;
-    setCurrentProduct(product);
-    setShowModal(true);
-    setIsEditing(true);
-  };
-  const handleDelete = async (id) => {
+  const handleRestore = async (id) => {
     try {
-      await deleteProductVariant(dispatch, id);
+      await restoreProductVariant(dispatch, id);
+      toast.success("Khôi phục thành công");
       handleSuccess();
-      toast.success("Xóa sản phẩm thành công");
-    } catch {
-      toast.error("Xóa sản phẩm thất bại");
+    } catch (error) {
+      toast.error("Khôi phục thất bại");
+      console.log(error);
     }
   };
 
   const handleSuccess = () => {
-    getProductVariant(dispatch, id);
+    getTrashProductVariant(dispatch, id);
   };
   return (
     <div className="container mx-auto p-4 mt-[64px]">
       <Breadcrumb />
-      <CreateProductVariant
-        show={showModal && !isEditing}
-        onClose={() => setShowModal(false)}
-        onCreateSuccess={handleSuccess}
-        productId={id}
-      />
-      <EditProductVariant
-        show={showModal && isEditing}
-        onClose={() => setShowModal(false)}
-        onCreateSuccess={handleSuccess}
-        product={id}
-        productVariant={currentProduct}
-      />
-      <h1 className="text-2xl font-bold">Quản Lý Biến Thể Sản Phẩm</h1>
-      <div className="flex items-center justify-between mb-4 text-right">
+      <h1 className="text-2xl font-bold">Thùng Rác Biến Thể Sản Phẩm</h1>
+      <div className="flex items-center justify-between m-4 text-right">
         <div className="flex gap-3 ml-auto">
           <Link
-            to={`/admin/productvarianttrash/${id}`}
-            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
-            Thùng Rác Sản Phẩm
+            to={`/admin/managerproduct/managerproductvariant/${id}`}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
+            Quản lý biến thể sản phẩm
           </Link>
-          <button
-            onClick={handleCreate}
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-300">
-            Thêm Biến Thể
-          </button>
         </div>
       </div>
+
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-gray-700 text-m uppercase">
@@ -110,14 +83,9 @@ const ProductVariant = () => {
                   <td className="py-2 px-4 text-center">
                     <div className="flex justify-center gap-3">
                       <button
-                        onClick={() => handleUpdate(product._id)}
+                        onClick={() => handleRestore(product._id)}
                         className="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-500 hover:text-white transition">
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition">
-                        <i className="fas fa-trash"></i>
+                        <i className="fas fa-trash-restore"></i>
                       </button>
                     </div>
                   </td>
@@ -139,4 +107,4 @@ const ProductVariant = () => {
   );
 };
 
-export default ProductVariant;
+export default ProductVariantTrash;

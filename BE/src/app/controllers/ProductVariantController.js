@@ -1,13 +1,33 @@
 const ProductVariant = require("../model/ProductVariant");
-
+const { mutipleMongooseToObject } = require("../../util/mongoose");
 class ProductVariantController {
   // Tạo biến thể sản phẩm mới
   createProductVariant = async (req, res) => {
     try {
-      console.log(req.body);
-      const { product_id, name, price, stock, size } = req.body;
-      const productVariant = new ProductVariant(req.body);
+      const { product_id, price, stock, size } = req.body;
+
+      // Kiểm tra nếu size đã tồn tại với product_id
+      const existingVariant = await ProductVariant.findOne({
+        product_id,
+        size: size.trim().toUpperCase(), // chuẩn hóa size (ví dụ: 'm' -> 'M')
+      });
+
+      if (existingVariant) {
+        return res
+          .status(400)
+          .json({ error: `Size "${size}" đã tồn tại cho sản phẩm này.` });
+      }
+
+      // Tạo mới nếu không trùng size
+      const productVariant = new ProductVariant({
+        product_id,
+        price,
+        stock,
+        size,
+      });
+
       await productVariant.save();
+
       res.status(201).json(productVariant);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -20,7 +40,9 @@ class ProductVariantController {
       const productVariants = await ProductVariant.find({
         product_id: req.params.productId,
       });
-      res.status(200).json(productVariants);
+      res
+        .status(200)
+        .json({ products: mutipleMongooseToObject(productVariants) });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -42,14 +64,18 @@ class ProductVariantController {
   // Cập nhật thông tin của biến thể sản phẩm
   updateProductVariant = async (req, res) => {
     try {
+      const { product_id, price, stock, size } = req.body;
+
       const updatedVariant = await ProductVariant.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        { product_id, price, stock, size },
         { new: true }
       );
+
       if (!updatedVariant) {
         return res.status(404).json({ message: "Product variant not found" });
       }
+
       res.status(200).json(updatedVariant);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -59,7 +85,7 @@ class ProductVariantController {
   // Xóa biến thể sản phẩm (soft delete)
   deleteProductVariant = async (req, res) => {
     try {
-      const variant = await ProductVariant.findByIdAndDelete(req.params.id);
+      const variant = await ProductVariant.delete({ _id: req.params.id });
       if (!variant) {
         return res.status(404).json({ message: "Product variant not found" });
       }
@@ -81,5 +107,22 @@ class ProductVariantController {
       res.status(500).json({ error: err.message });
     }
   };
+  async getAllProductsTrash(req, res, next) {
+    try {
+      // In ra các tham số URL để kiểm tra
+
+      const { id } = req.params; // Lấy id từ tham số URL
+
+      // Tìm sản phẩm đã xóa mềm theo product_id
+      const products = await ProductVariant.findDeleted({ product_id: id })
+        .where("deleted")
+        .equals(true);
+      res.status(200).json({
+        products: mutipleMongooseToObject(products), // Chuyển đổi kết quả sang dạng đối tượng
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 module.exports = new ProductVariantController();

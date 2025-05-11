@@ -13,6 +13,7 @@ import Home from "./Pages/Home";
 import Product from "./Pages/Admin/Product";
 import ProductTrash from "./Pages/Admin/Product/ProductTrash";
 import ProductVariant from "./Pages/Admin/ProductVariant";
+import ProductVariantTrash from "./Pages/Admin/ProductVariant/ProductVariantTrash";
 
 import "./App.css";
 import { ToastContainer } from "react-toastify";
@@ -39,10 +40,15 @@ function App() {
         <Route path="/admin/managerproduct" element={<Product />} />
         <Route path="/admin/trashmanagerproduct" element={<ProductTrash />} />
         <Route
-          path="/admin/managerproductvariant/:id"
+          path="/admin/managerproduct/managerproductvariant/:id"
           element={<ProductVariant />}
         />
+        <Route
+          path="/admin/productvarianttrash/:id"
+          element={<ProductVariantTrash />}
+        />
       </Routes>
+
       <ToastContainer position="bottom-right" />
     </>
   );
