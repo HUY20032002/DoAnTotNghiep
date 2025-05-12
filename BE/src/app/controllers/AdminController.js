@@ -36,7 +36,6 @@ class AdminController {
       })
       .catch(next);
   }
-
   // [GET] admin/user/edit
   editUser(req, res, next) {
     User.findById(req.params.id)
@@ -50,7 +49,6 @@ class AdminController {
       })
       .catch(next);
   }
-
   updateUser(req, res, next) {
     User.updateOne({ _id: req.params.id }, req.body)
       .then((user) => {
@@ -63,7 +61,6 @@ class AdminController {
       })
       .catch(next);
   }
-
   // [DELETE] admin/user/delete
   deleteUser(req, res, next) {
     User.delete({ _id: req.params.id })

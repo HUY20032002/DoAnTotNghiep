@@ -2,7 +2,7 @@ const ProductVariant = require("../model/ProductVariant");
 const { mutipleMongooseToObject } = require("../../util/mongoose");
 class ProductVariantController {
   // Tạo biến thể sản phẩm mới
-  createProductVariant = async (req, res) => {
+  async createProductVariant(req, res) {
     try {
       const { product_id, price, stock, size } = req.body;
 
@@ -32,10 +32,10 @@ class ProductVariantController {
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
-  };
+  }
 
   // Lấy tất cả biến thể của sản phẩm
-  getAllProductVariants = async (req, res) => {
+  async getAllProductVariants(req, res) {
     try {
       const productVariants = await ProductVariant.find({
         product_id: req.params.productId,
@@ -46,10 +46,10 @@ class ProductVariantController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  }
 
   // Lấy thông tin chi tiết của một biến thể sản phẩm
-  getProductVariantById = async (req, res) => {
+  async getProductVariantById(req, res) {
     try {
       const productVariant = await ProductVariant.findById(req.params.id);
       if (!productVariant) {
@@ -59,10 +59,10 @@ class ProductVariantController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  }
 
   // Cập nhật thông tin của biến thể sản phẩm
-  updateProductVariant = async (req, res) => {
+  async updateProductVariant(req, res) {
     try {
       const { product_id, price, stock, size } = req.body;
 
@@ -80,10 +80,10 @@ class ProductVariantController {
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
-  };
+  }
 
   // Xóa biến thể sản phẩm (soft delete)
-  deleteProductVariant = async (req, res) => {
+  async deleteProductVariant(req, res) {
     try {
       const variant = await ProductVariant.delete({ _id: req.params.id });
       if (!variant) {
@@ -93,7 +93,7 @@ class ProductVariantController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  }
 
   // Khôi phục biến thể sản phẩm đã xóa mềm
   restoreProductVariant = async (req, res) => {

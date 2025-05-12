@@ -2,12 +2,13 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const User = require("../model/User"); // Giả sử bạn có model User trong thư mục model
 const Product = require("../model/Product");
+const { mutipleMongooseToObject } = require("../../util/mongoose");
 class SiteController {
   // [GET] /news
-  index(req, res, next) {
+  getAllProduct(req, res, next) {
     Product.find({})
       .then((products) =>
-        res.json("home", { products: mutipleMongooseToObject(products) })
+        res.json({ products: mutipleMongooseToObject(products) })
       )
       .catch(next);
   }
@@ -16,17 +17,14 @@ class SiteController {
   register(req, res) {
     res.render("register");
   }
-
   // [GET] /news/:slug
   login(req, res) {
     res.render("login");
   }
-
   // [GET] /news/:slug
   search(req, res) {
     res.render("home");
   }
-
   // [POST] /forgot-password
   async forgotPassword(req, res) {
     const { email, newPassword, confirmPassword } = req.body;

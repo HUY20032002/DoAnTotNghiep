@@ -5,12 +5,12 @@ const ProductCard = ({ name, price, image, hoverImage }) => {
     <a href="#" className="group block overflow-hidden">
       <div className="relative h-[350px] sm:h-[450px]">
         <img
-          src={image}
+          src={`http://localhost:8000${image}`}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
         />
         <img
-          src={hoverImage}
+          src={`http://localhost:8000${hoverImage}`}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
         />

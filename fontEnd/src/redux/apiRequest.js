@@ -469,3 +469,14 @@ export const restoreProductVariant = async (dispatch, id) => {
     console.error("Restore failed:", error);
   }
 };
+// Home show product
+export const ShowProduct = async (dispatch) => {
+  dispatch(getProductsStart());
+  try {
+    const res = await axios.get(`http://localhost:8000/show`);
+    dispatch(getProductsSuccess(res.data));
+  } catch (error) {
+    dispatch(getProductsFailed());
+    console.error("Restore failed:", error);
+  }
+};

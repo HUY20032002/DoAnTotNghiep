@@ -6,7 +6,7 @@ const { mutipleMongooseToObject } = require("../../util/mongoose");
 
 class ProductController {
   // Tạo sản phẩm mới
-  createProduct = async (req, res) => {
+  async createProduct(req, res) {
     try {
       const { name, price, stock, category, description } = req.body;
       const imageFile = req.files?.image?.[0];
@@ -48,7 +48,7 @@ class ProductController {
         error: err.message,
       });
     }
-  };
+  }
 
   // Các phương thức khác không thay đổi
   async getAllProducts(req, res, next) {
@@ -130,7 +130,7 @@ class ProductController {
   }
 
   // Lấy thông tin chi tiết một sản phẩm
-  getProductById = async (req, res) => {
+  async getProductById(req, res) {
     try {
       const product = await Product.findById(req.params.id);
       if (!product) {
@@ -140,10 +140,10 @@ class ProductController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  }
 
   // Cập nhật thông tin sản phẩm
-  updateProduct = async (req, res) => {
+  async updateProduct(req, res) {
     try {
       const productId = req.params.id;
 
@@ -246,10 +246,10 @@ class ProductController {
       console.error("Error updating product:", err);
       res.status(400).json({ error: err.message });
     }
-  };
+  }
 
   // Xóa sản phẩm (soft delete)
-  deleteProduct = async (req, res, next) => {
+  async deleteProduct(req, res, next) {
     try {
       const product = await Product.delete({ _id: req.params.id }); // Soft delete using mongoose-delete
       if (!product) {
@@ -259,10 +259,10 @@ class ProductController {
     } catch (error) {
       next(error); // Pass the error to the next middleware (usually an error handler)
     }
-  };
+  }
 
   // Xóa Vĩnh Viễn sản phẩm
-  destroyProduct = async (req, res) => {
+  async destroyProduct(req, res) {
     try {
       const productId = req.params.id;
 
@@ -325,10 +325,10 @@ class ProductController {
         error: error.message,
       });
     }
-  };
+  }
 
   // Khôi phục sản phẩm đã xóa mềm
-  restoreProduct = async (req, res) => {
+  async restoreProduct(req, res) {
     try {
       const product = await Product.restore({ _id: req.params.id });
       if (!product) {
@@ -340,7 +340,7 @@ class ProductController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  }
 }
 
 module.exports = new ProductController();

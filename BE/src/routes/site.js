@@ -5,9 +5,7 @@ const middlewareController = require("../app/controllers/MiddlewereController");
 // console.log(newsController.index);
 router.get("/login", siteController.login);
 router.get("/register", siteController.register);
-router.get("/:slug", siteController.search);
-router.get("/", siteController.index);
+router.get("/show", siteController.getAllProduct);
 router.post("/forgotpassword", siteController.forgotPassword);
-
-router.post("/logout", middlewareController.verifyToken, siteController.index);
+router.get("/:slug", siteController.search);
 module.exports = router;

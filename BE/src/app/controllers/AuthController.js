@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 let refreshTokens = [];
 
 class AuthController {
+  // Register
   async register(req, res, next) {
     try {
       const { name, email, phone, password } = req.body;
@@ -41,7 +42,6 @@ class AuthController {
       next(err);
     }
   }
-
   generateAccessToken(user) {
     return jwt.sign(
       { id: user._id, admin: user.admin },
@@ -49,7 +49,6 @@ class AuthController {
       { expiresIn: "15d" } // Gợi ý rút ngắn thời gian
     );
   }
-
   generateRefreshToken(user) {
     return jwt.sign(
       { id: user._id, admin: user.admin },
@@ -57,7 +56,7 @@ class AuthController {
       { expiresIn: "20s" } // Rút ngắn cho an toàn hơn
     );
   }
-
+  // Login
   async login(req, res) {
     try {
       const { email, password } = req.body;
