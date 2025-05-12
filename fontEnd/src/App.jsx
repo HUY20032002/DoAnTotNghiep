@@ -21,9 +21,10 @@ function App() {
   return (
     <>
       <Header />
-      <Home />
-      <Footer />
       <Routes>
+        {/* Home */}
+        <Route path="/" element={<Home />} />
+
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/manageruser" element={<User />} />
@@ -48,7 +49,7 @@ function App() {
           element={<ProductVariantTrash />}
         />
       </Routes>
-
+      <Footer />
       <ToastContainer position="bottom-right" />
     </>
   );

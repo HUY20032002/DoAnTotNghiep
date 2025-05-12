@@ -109,11 +109,8 @@ class ProductVariantController {
   };
   async getAllProductsTrash(req, res, next) {
     try {
-      // In ra các tham số URL để kiểm tra
-
       const { id } = req.params; // Lấy id từ tham số URL
 
-      // Tìm sản phẩm đã xóa mềm theo product_id
       const products = await ProductVariant.findDeleted({ product_id: id })
         .where("deleted")
         .equals(true);
