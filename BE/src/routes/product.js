@@ -14,11 +14,17 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
-
 const upload = multer({ storage });
 
 // 👇 Sửa route createProduct để dùng multer
-router.post("/create", upload.single("image"), productController.createProduct);
+router.post(
+  "/create",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "hoverimage", maxCount: 1 },
+  ]),
+  productController.createProduct
+);
 
 // Lấy tất cả sản phẩm
 router.get("/", productController.getAllProducts);
@@ -30,7 +36,14 @@ router.get("/trash", productController.getAllProductsTrash);
 router.get("/:id", productController.getProductById);
 
 // Cập nhật thông tin sản phẩm
-router.put("/:id", upload.single("image"), productController.updateProduct);
+router.put(
+  "/:id",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "hoverimage", maxCount: 1 },
+  ]),
+  productController.updateProduct
+);
 
 // Xóa sản phẩm (soft delete)
 router.delete("/:id", productController.deleteProduct);

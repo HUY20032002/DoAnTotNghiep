@@ -9,12 +9,16 @@ class ProductController {
   createProduct = async (req, res) => {
     try {
       const { name, price, stock, category, description } = req.body;
+      const imageFile = req.files?.image?.[0];
+      const hoverFile = req.files?.hoverimage?.[0];
+      console.log("req.body:", req.body);
+      console.log("req.files:", req.files);
 
-      if (!req.file) {
-        return res.status(400).json({ message: "Vui lòng chọn ảnh sản phẩm!" });
+      if (!imageFile || !hoverFile) {
+        return res
+          .status(400)
+          .json({ message: "Vui lòng chọn cả ảnh chính và ảnh hover!" });
       }
-
-      const imageUrl = `/uploads/${req.file.filename}`;
 
       if (!name || !price || !stock || !category || !description) {
         return res
@@ -28,7 +32,8 @@ class ProductController {
         stock,
         category,
         description,
-        image: imageUrl,
+        image: `/uploads/${imageFile.filename}`,
+        hoverimage: `/uploads/${hoverFile.filename}`,
       });
 
       await newProduct.save();
@@ -82,7 +87,7 @@ class ProductController {
       res.status(500).json({ error: err.message });
     }
   }
-
+  // Lấy sản phẩm đã xóa mềm
   async getAllProductsTrash(req, res, next) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
@@ -152,34 +157,31 @@ class ProductController {
       }
 
       const currentImageRelativePath = existingProduct.image; // VD: "/uploads/old123.jpg"
+      const currentHoverImageRelativePath = existingProduct.hoverimage; // Đường dẫn ảnh hover cũ
       const currentImageFullPath = path.join(
         __dirname,
         "../../../",
         currentImageRelativePath
       );
-      console.log(
-        "🖼️ Đường dẫn ảnh hiện tại (từ DB):",
-        currentImageRelativePath
-      );
-      console.log(
-        "📁 Đường dẫn ảnh hiện tại (trên ổ đĩa):",
-        currentImageFullPath
+      const currentHoverImageFullPath = path.join(
+        __dirname,
+        "../../../",
+        currentHoverImageRelativePath
       );
 
       let imagePath = currentImageRelativePath;
+      let hoverImagePath = currentHoverImageRelativePath;
 
+      // Nếu có ảnh mới (image)
       if (req.file) {
-        // Ảnh mới
         imagePath = "/uploads/" + req.file.filename;
         const newImageFullPath = path.join(
           __dirname,
           "../../uploads",
           req.file.filename
         );
-        console.log("🆕 Đường dẫn ảnh mới sẽ lưu (trong DB):", imagePath);
-        console.log("📁 Đường dẫn ảnh mới (trên ổ đĩa):", newImageFullPath);
 
-        // ✅ XÓA ẢNH CŨ nếu không phải ảnh mặc định
+        // Xóa ảnh cũ nếu không phải ảnh mặc định
         if (
           currentImageRelativePath &&
           !currentImageRelativePath.includes("default.jpg") &&
@@ -195,6 +197,34 @@ class ProductController {
         }
       }
 
+      // Nếu có ảnh hover mới (hoverimage)
+      if (req.files && req.files.hoverimage) {
+        hoverImagePath = "/uploads/" + req.files.hoverimage[0].filename;
+        const newHoverImageFullPath = path.join(
+          __dirname,
+          "../../uploads",
+          req.files.hoverimage[0].filename
+        );
+
+        // Xóa ảnh hover cũ nếu có và không phải ảnh mặc định
+        if (
+          currentHoverImageRelativePath &&
+          !currentHoverImageRelativePath.includes("default.jpg") &&
+          fs.existsSync(currentHoverImageFullPath)
+        ) {
+          fs.unlink(currentHoverImageFullPath, (err) => {
+            if (err) {
+              console.error("❌ Không thể xóa ảnh hover cũ:", err.message);
+            } else {
+              console.log(
+                "✅ Ảnh hover cũ đã được xóa:",
+                currentHoverImageFullPath
+              );
+            }
+          });
+        }
+      }
+
       const updateData = {
         name: req.body.name,
         price: req.body.price,
@@ -202,6 +232,7 @@ class ProductController {
         description: req.body.description,
         category: req.body.category,
         image: imagePath,
+        hoverimage: hoverImagePath, // Cập nhật ảnh hover
       };
 
       const updatedProduct = await Product.findByIdAndUpdate(
@@ -255,6 +286,21 @@ class ProductController {
           __dirname,
           "../../../uploads",
           path.basename(productToDelete.image)
+        );
+
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+          console.log("Ảnh đã được xóa:", imagePath);
+        } else {
+          console.log("Ảnh không tồn tại tại:", imagePath);
+        }
+      }
+      // Kiểm tra và xóa ảnh nếu có
+      if (productToDelete.hoverimage) {
+        const imagePath = path.resolve(
+          __dirname,
+          "../../../uploads",
+          path.basename(productToDelete.hoverimage)
         );
 
         if (fs.existsSync(imagePath)) {

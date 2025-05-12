@@ -8,7 +8,8 @@ const Product = new Scheme(
     price: { type: Number },
     description: { type: String, maxLength: 255 }, // Sửa lại từ String thành Number
     image: { type: String },
-    stock: { type: Number }, // Sửa lại từ String thành Number
+    hoverimage: { type: String },
+    stock: { type: Number },
     type: { type: String, maxLength: 255 },
     category: { type: String, maxLength: 50 },
   },

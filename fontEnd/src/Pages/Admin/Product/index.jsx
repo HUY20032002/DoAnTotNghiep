@@ -150,6 +150,7 @@ const Product = () => {
             <tr>
               <th className="py-2 px-4 text-left">#</th>
               <th className="py-2 px-4 text-left">Ảnh</th>
+              <th className="py-2 px-4 text-left">Ảnh Hover</th>
               <th className="py-2 px-4 text-left">Tên</th>
               <th className="py-2 px-4 text-left">Giá</th>
               <th className="py-2 px-4 text-left">Số lượng</th>
@@ -166,6 +167,13 @@ const Product = () => {
                   <td className="py-2 px-4 text-left">
                     <img
                       src={`http://localhost:8000${product.image}`}
+                      alt={product.name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </td>
+                  <td className="py-2 px-4 text-left">
+                    <img
+                      src={`http://localhost:8000${product.hoverimage}`}
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded"
                     />

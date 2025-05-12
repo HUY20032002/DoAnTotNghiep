@@ -10,9 +10,12 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
+  const [hoverimage, setHoverImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const fileInputRef = useRef(); // ref cho input file
-  const [preview, setPreview] = useState(null);
+  const fileInputHoverRef = useRef(); // separate ref for hover image
+  const [previewImage, setPreviewImage] = useState(null);
+  const [previewHoverImage, setPreviewHoverImage] = useState(null);
 
   useEffect(() => {
     axios
@@ -34,20 +37,28 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
       setStock(product.stock || "");
       setDescription(product.description || "");
       setCategory(product.category || "");
-      setImage(null); // Reset ảnh nếu không upload lại
-      setPreview(null); // Reset preview
+      setImage(null); // Reset image if not uploading again
+      setHoverImage(null); // Reset hover image
+      setPreviewImage(null); // Reset preview
+      setPreviewHoverImage(null); // Reset hover image preview
       if (fileInputRef.current) fileInputRef.current.value = null;
+      if (fileInputHoverRef.current) fileInputHoverRef.current.value = null;
     }
   }, [product]);
 
-  const handleImage = (e) => {
+  const handleImage = (e, type) => {
     const file = e.target.files[0];
     if (file && file.size > 2 * 1024 * 1024) {
       alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
       return;
     }
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
+    if (type === "image") {
+      setImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    } else if (type === "hoverimage") {
+      setHoverImage(file);
+      setPreviewHoverImage(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,6 +77,9 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
     formData.append("description", description);
     if (image) {
       formData.append("image", image);
+    }
+    if (hoverimage) {
+      formData.append("hoverimage", hoverimage);
     }
 
     try {
@@ -91,101 +105,146 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
       role="dialog"
       aria-modal="true">
       <div
-        className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg"
+        className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl"
         onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Ảnh sản phẩm
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleImage}
-              className="mt-1 block w-full border rounded px-2 py-1"
-            />
-            {!image && product?.image && (
-              <div className="mt-2">
-                <p className="text-sm text-gray-500">Ảnh hiện tại:</p>
-                <img
-                  src={`http://localhost:8000${product.image}`}
-                  alt="Ảnh sản phẩm hiện tại"
-                  className="w-32 h-32 object-cover rounded border mt-1"
-                />
-              </div>
-            )}
-            {preview && (
-              <div className="mt-2">
-                <p className="text-sm text-gray-500">Xem trước ảnh mới:</p>
-                <img
-                  src={preview}
-                  alt="Xem trước"
-                  className="w-32 h-32 object-cover rounded border mt-1"
-                />
-              </div>
-            )}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-row gap-6 max-h-[80vh] overflow-y-auto">
+          {/* Cột bên trái: Hình ảnh */}
+          <div className="w-1/3 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Ảnh sản phẩm
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={(e) => handleImage(e, "image")}
+                className="mt-1 block w-full border rounded px-2 py-1"
+              />
+              {!image && product?.image && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">Ảnh hiện tại:</p>
+                  <img
+                    src={`http://localhost:8000${product.image}`}
+                    alt="Ảnh sản phẩm hiện tại"
+                    className="w-32 h-32 object-cover rounded border mt-1"
+                  />
+                </div>
+              )}
+              {previewImage && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">Xem trước ảnh mới:</p>
+                  <img
+                    src={previewImage}
+                    alt="Xem trước"
+                    className="w-32 h-32 object-cover rounded border mt-1"
+                  />
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Ảnh Hover sản phẩm
+              </label>
+              <input
+                type="file"
+                name="hoverimage"
+                accept="image/*"
+                ref={fileInputHoverRef}
+                onChange={(e) => handleImage(e, "hoverimage")}
+                className="mt-1 block w-full border rounded px-2 py-1"
+              />
+              {!hoverimage && product?.hoverimage && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">Ảnh Hover hiện tại:</p>
+                  <img
+                    src={`http://localhost:8000${product.hoverimage}`}
+                    alt="Ảnh Hover sản phẩm hiện tại"
+                    className="w-32 h-32 object-cover rounded border mt-1"
+                  />
+                </div>
+              )}
+              {previewHoverImage && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    Xem trước ảnh Hover mới:
+                  </p>
+                  <img
+                    src={previewHoverImage}
+                    alt="Xem trước Hover"
+                    className="w-32 h-32 object-cover rounded border mt-1"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <input
-            name="name"
-            placeholder="Tên sản phẩm"
-            onChange={(e) => setName(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            value={name}
-            required
-          />
-          <input
-            name="price"
-            type="number"
-            placeholder="Giá"
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            value={price}
-            required
-          />
-          <input
-            name="stock"
-            type="number"
-            placeholder="Số lượng"
-            onChange={(e) => setStock(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            value={stock}
-            required
-          />
-          <select
-            name="category"
-            onChange={(e) => setCategory(e.target.value)}
-            value={category}
-            className="w-full border rounded px-3 py-2"
-            required>
-            <option value="">Chọn danh mục</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <textarea
-            name="description"
-            rows="4"
-            placeholder="Mô tả sản phẩm"
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            value={description}
-            required
-          />
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
-              Huỷ
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              Sửa sản phẩm
-            </button>
+
+          {/* Cột bên phải: Thông tin sản phẩm */}
+          <div className="w-2/3 space-y-4">
+            <input
+              name="name"
+              placeholder="Tên sản phẩm"
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+              value={name}
+              required
+            />
+            <input
+              name="price"
+              type="number"
+              placeholder="Giá"
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+              value={price}
+              required
+            />
+            <input
+              name="stock"
+              type="number"
+              placeholder="Số lượng"
+              onChange={(e) => setStock(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+              value={stock}
+              required
+            />
+            <select
+              name="category"
+              onChange={(e) => setCategory(e.target.value)}
+              value={category}
+              className="w-full border rounded px-3 py-2"
+              required>
+              <option value="">Chọn danh mục</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <textarea
+              name="description"
+              rows="4"
+              placeholder="Mô tả sản phẩm"
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+              value={description}
+              required
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                Huỷ
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Sửa sản phẩm
+              </button>
+            </div>
           </div>
         </form>
       </div>

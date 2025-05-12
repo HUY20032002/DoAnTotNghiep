@@ -279,10 +279,8 @@ export const createProduct = async (dispatch, formData) => {
       },
     });
     dispatch(createSuccess()); // Giải quyết res.data thay vì chỉ gọi dispatch
-    toast.success("Thêm sản phẩm thành công!"); // Thông báo thành công
   } catch (error) {
     dispatch(createFailed());
-    toast.error("Thêm sản phẩm thất bại!"); // Thông báo lỗi
     console.error("Create Product failed:", error);
   }
 };
