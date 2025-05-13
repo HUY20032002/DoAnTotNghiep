@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
 const ProductCard = ({ name, price, image, hoverImage }) => {
+  const [liked, setLiked] = useState(false);
+  const handleHeart = () => {
+    setLiked(!liked);
+  };
+
   return (
     <a href="#" className="group block overflow-hidden">
       <div className="relative h-[350px] sm:h-[450px]">
@@ -17,10 +22,18 @@ const ProductCard = ({ name, price, image, hoverImage }) => {
       </div>
 
       <div className="relative bg-white pt-3">
-        <h3 className="text-sm text-gray-700 group-hover:underline group-hover:underline-offset-4">
+        <h3 className="text-xl text-gray-700 group-hover:underline group-hover:underline-offset-4">
           {name}
         </h3>
-        <p className="mt-1.5 tracking-wide text-gray-900">${price}</p>
+        <button onClick={handleHeart}>
+          <i
+            className={liked ? "fas fa-heart" : "far fa-heart"}
+            style={{ color: liked ? "red" : "black" }}></i>
+        </button>
+
+        <p className="mt-1.5 tracking-wide text-gray-900">
+          {price.toLocaleString()}đ
+        </p>
       </div>
     </a>
   );

@@ -45,7 +45,7 @@ const ProductVariantTrash = () => {
     getTrashProductVariant(dispatch, id);
   };
   return (
-    <div className="container mx-auto p-4 mt-[64px]">
+    <div className="container mx-auto p-4 mt-[90px]">
       <Breadcrumb />
       <h1 className="text-2xl font-bold">Thùng Rác Biến Thể Sản Phẩm</h1>
       <div className="flex items-center justify-between m-4 text-right">

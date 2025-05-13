@@ -58,35 +58,58 @@ class ProductController {
     const category = req.query.category || null;
     const skip = (page - 1) * limit;
 
-    // Tạo query tìm kiếm (bao gồm tên và mô tả)
-    const query = {
+    // Query tìm kiếm
+    const match = {
       $or: [
         { name: { $regex: keyword, $options: "i" } },
         { description: { $regex: keyword, $options: "i" } },
       ],
     };
 
-    // Nếu có category, thêm điều kiện lọc category
     if (category) {
-      query.category = category; // Cần đảm bảo category là ObjectId
+      match.category = category;
     }
 
     try {
-      // Lấy sản phẩm và tổng số sản phẩm cùng lúc (để tính tổng số trang)
-      const [products, count] = await Promise.all([
-        Product.find(query).skip(skip).limit(limit), // Áp dụng phân trang
-        Product.countDocuments(query), // Lấy tổng số sản phẩm theo query
+      const aggregatePipeline = [
+        { $match: match },
+        {
+          $lookup: {
+            from: "productvariants",
+            localField: "_id",
+            foreignField: "product_id",
+            as: "variants",
+          },
+        },
+        {
+          $addFields: {
+            stock: { $sum: "$variants.stock" }, // Tính tổng stock
+          },
+        },
+        {
+          $project: {
+            variants: 0, // Không trả về mảng variants nếu không cần
+          },
+        },
+        { $skip: skip },
+        { $limit: limit },
+      ];
+
+      const [products, countResult] = await Promise.all([
+        Product.aggregate(aggregatePipeline),
+        Product.countDocuments(match),
       ]);
 
       res.status(200).json({
-        products: mutipleMongooseToObject(products),
-        totalPages: Math.max(1, Math.ceil(count / limit)), // Tính tổng số trang
+        products,
+        totalPages: Math.max(1, Math.ceil(countResult / limit)),
         currentPage: page,
       });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
+
   // Lấy sản phẩm đã xóa mềm
   async getAllProductsTrash(req, res, next) {
     const page = parseInt(req.query.page) || 1;

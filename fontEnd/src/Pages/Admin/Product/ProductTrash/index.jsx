@@ -110,7 +110,7 @@ const ProductTrash = () => {
   }, [currentProduct]);
 
   return (
-    <div className="container mx-auto px-4 mt-[64px]">
+    <div className="container mx-auto px-4 mt-[80px]">
       <Breadcrumb />
 
       <ConfirmDestroyProduct
