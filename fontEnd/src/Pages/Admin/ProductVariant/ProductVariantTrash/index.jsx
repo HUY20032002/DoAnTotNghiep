@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 const ProductVariantTrash = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
-    (state) => state.products.products?.allProducts
+    (state) => state.productVariants.productVariants?.allProductVariants
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();

@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 const ProductVariant = () => {
   const user = useSelector((state) => state.auth.login?.currentUser);
   const productList = useSelector(
-    (state) => state.products.products?.allProducts
+    (state) => state.productVariants.productVariants?.allProductVariants
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const ProductVariant = () => {
     } else {
       getProductVariant(dispatch, id);
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, id]);
 
   const handleCreate = () => {
     setShowModal(true);
@@ -67,7 +67,7 @@ const ProductVariant = () => {
         show={showModal && isEditing}
         onClose={() => setShowModal(false)}
         onCreateSuccess={handleSuccess}
-        product={id}
+        productId={id}
         productVariant={currentProduct}
       />
       <h1 className="text-2xl font-bold">Quản Lý Biến Thể Sản Phẩm</h1>

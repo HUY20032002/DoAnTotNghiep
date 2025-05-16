@@ -45,6 +45,27 @@ import {
   getProductSuccess,
   getProductFailed,
 } from "./productSlice";
+import {
+  getProductVariantsStart,
+  getProductVariantsSuccess,
+  getProductVariantsFailed,
+  deleteProductVariantStart,
+  deleteProductVariantSuccess,
+  deleteProductVariantFaild,
+  updateProductVariantStart,
+  updateProductVariantSuccess,
+  updateProductVariantFailed,
+  restoreProductVariantStart,
+  restoreProductVariantSuccess,
+  restoreProductVariantFailed,
+  createVariantStart,
+  createVariantSuccess,
+  createVariantFailed,
+  getAllProductVariantsSuccess,
+  getProductVariantStart,
+  getProductVariantSuccess,
+  getProductVariantFailed,
+} from "./productVariantSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // LOGIN
@@ -366,7 +387,7 @@ export const Categories = async () => {
 };
 // create ProductVariant
 export const createProductVariant = async (dispatch, formData) => {
-  dispatch(createStart());
+  dispatch(createVariantStart());
   try {
     const res = await axios.post(
       "http://localhost:8000/productvariant/create",
@@ -377,10 +398,10 @@ export const createProductVariant = async (dispatch, formData) => {
         },
       }
     );
-    dispatch(createSuccess());
+    dispatch(createVariantSuccess());
     return { success: true, data: res.data };
   } catch (error) {
-    dispatch(createFailed());
+    dispatch(createVariantFailed());
     console.error("Create Product failed:", error);
     return {
       success: false,
@@ -390,85 +411,75 @@ export const createProductVariant = async (dispatch, formData) => {
 };
 // get ProductVariant
 export const getProductVariant = async (dispatch, productId) => {
-  dispatch(getProductsStart());
+  dispatch(getProductVariantsStart());
   try {
     const res = await axios.get(
       `http://localhost:8000/productvariant/${productId}`
     );
-    dispatch(getProductsSuccess(res.data)); // Truyền đúng dữ liệu cho Redux
+    console.log(res.data);
+    dispatch(getProductVariantsSuccess(res.data)); // Truyền đúng dữ liệu cho Redux
     return res.data; // Optional: Nếu muốn gọi từ component
   } catch (error) {
-    dispatch(getProductsFailed());
+    dispatch(getProductVariantsFailed());
     console.error("Get ProductVariant failed:", error);
   }
 };
 // update ProductVariant
 export const updateProductVariant = async (dispatch, formData, id) => {
   try {
-    // Gửi PUT request để cập nhật thông tin biến thể sản phẩm
+    dispatch(updateProductVariantStart());
     const res = await axios.put(
       `http://localhost:8000/productvariant/update/${id}`,
       formData
     );
+    dispatch(updateProductVariantSuccess());
+
     // Xử lý khi yêu cầu thành công
-    return {
-      success: true,
-      data: res.data, // Nếu có dữ liệu trả về, lưu vào data
-    };
   } catch (error) {
     // Xử lý khi yêu cầu thất bại
+    dispatch(updateProductVariantFailed());
     console.error("Update Product failed:", error);
-    return {
-      success: false,
-      error:
-        error.response?.data?.error || "Đã xảy ra lỗi khi cập nhật biến thể.",
-    };
   }
 };
 // delete ProductVariant
 export const deleteProductVariant = async (dispatch, id) => {
   try {
+    dispatch(deleteProductVariantStart());
     const res = await axios.delete(
       `http://localhost:8000/productvariant/${id}`
     );
     // Xử lý khi yêu cầu thành công
-    return {
-      success: true,
-      data: res.data, // Nếu có dữ liệu trả về, lưu vào data
-    };
+    dispatch(deleteProductVariantSuccess());
   } catch (error) {
     // Xử lý khi yêu cầu thất bại
+    dispatch(deleteProductVariantFaild());
     console.error("Delete Product failed:", error);
-    return {
-      success: false,
-      error: error.response?.data?.error || "Đã xảy ra lỗi khi xóa biến thể.",
-    };
   }
 };
 // GET ALL Trash PRODUCT Variant
 export const getTrashProductVariant = async (dispatch, productId) => {
-  dispatch(getProductsStart());
+  dispatch(getProductVariantsStart());
   try {
     const res = await axios.get(
       `http://localhost:8000/productvariant/trash/${productId}`
     );
-    dispatch(getProductsSuccess(res.data)); // Truyền đúng dữ liệu cho Redux
+    dispatch(getProductVariantsSuccess(res.data)); // Truyền đúng dữ liệu cho Redux
     return res.data; // Optional: Nếu muốn gọi từ component
   } catch (error) {
-    dispatch(getProductsFailed());
+    dispatch(getProductVariantsFailed());
     console.error("Get ProductVariant failed:", error);
   }
 };
 // Restore Product Variant
 export const restoreProductVariant = async (dispatch, id) => {
-  dispatch(restoreProductStart());
+  dispatch(restoreProductVariantStart());
   try {
     const res = await axios.patch(
       `http://localhost:8000/productvariant/restore/${id}`
     );
-    dispatch(restoreProductSuccess(res.data));
+    dispatch(restoreProductVariantSuccess(res.data));
   } catch (error) {
-    dispatch(restoreProductFailed());
+    dispatch(restoreProductVariantFailed());
     console.error("Restore failed:", error);
   }
 };
