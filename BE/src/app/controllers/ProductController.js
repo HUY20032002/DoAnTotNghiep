@@ -11,9 +11,6 @@ class ProductController {
       const { name, price, stock, category, description } = req.body;
       const imageFile = req.files?.image?.[0];
       const hoverFile = req.files?.hoverimage?.[0];
-      console.log("req.body:", req.body);
-      console.log("req.files:", req.files);
-
       if (!imageFile || !hoverFile) {
         return res
           .status(400)

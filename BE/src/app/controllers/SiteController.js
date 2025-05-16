@@ -2,7 +2,10 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const User = require("../model/User"); // Giả sử bạn có model User trong thư mục model
 const Product = require("../model/Product");
-const { mutipleMongooseToObject } = require("../../util/mongoose");
+const {
+  mutipleMongooseToObject,
+  mongooseToObject,
+} = require("../../util/mongoose");
 class SiteController {
   // [GET] /news
   getAllProduct(req, res, next) {
@@ -65,6 +68,24 @@ class SiteController {
       return res
         .status(500)
         .json({ message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+    }
+  }
+  // Tìm kiếm sản phẩm theo Slug
+  async findSlug(req, res) {
+    try {
+      const slug = req.params.slug;
+
+      const product = await Product.findOne({ slug });
+      if (!product) {
+        return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+      }
+
+      return res.json({ products: mongooseToObject(product) });
+    } catch (error) {
+      console.error("❌ Lỗi server:", error);
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   }
 }

@@ -7,5 +7,6 @@ router.get("/login", siteController.login);
 router.get("/register", siteController.register);
 router.get("/show", siteController.getAllProduct);
 router.post("/forgotpassword", siteController.forgotPassword);
-router.get("/:slug", siteController.search);
+router.get("/detail/:slug", siteController.findSlug);
+// router.get("/:slug", siteController.search);
 module.exports = router;

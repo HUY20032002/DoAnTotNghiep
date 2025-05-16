@@ -69,9 +69,25 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-12 gap-2 py-2 bg-yellow-400">
-              <div className="">Ngân hàng 1</div>
-              <div className="">Ngân hàng 2</div>
+            <div className="grid grid-cols-12 gap-2 py-2">
+              <div className="col-span-4 ">
+                <a href="/">
+                  <img
+                    src="/asset/logo_bct.webp"
+                    alt=""
+                    className="h-16 object-contain"
+                  />
+                </a>
+              </div>
+              <div className="col-span-4  ">
+                <a href="/">
+                  <img
+                    src="/asset/footer_trustbadge.webp"
+                    alt=""
+                    className="h-16 object-contain"
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </div>

@@ -41,6 +41,9 @@ import {
   createSuccess,
   createFailed,
   getAllProductsSuccess,
+  getProductStart,
+  getProductSuccess,
+  getProductFailed,
 } from "./productSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -478,5 +481,17 @@ export const ShowProduct = async (dispatch) => {
   } catch (error) {
     dispatch(getProductsFailed());
     console.error("Restore failed:", error);
+  }
+};
+// Detail Slug
+export const ShowDetail = async (dispatch, slug) => {
+  dispatch(getProductStart());
+  try {
+    const res = await axios.get(`http://localhost:8000/detail/${slug}`);
+    dispatch(getProductSuccess(res.data));
+    // console.log(res.data.products);
+  } catch (error) {
+    dispatch(getProductFailed());
+    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
   }
 };

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-
-const ProductCard = ({ name, price, image, hoverImage }) => {
+import { Link } from "react-router-dom";
+const ProductCard = (props) => {
+  const { name, price, image, hoverimage, slug } = props.data;
   const [liked, setLiked] = useState(false);
   const handleHeart = () => {
     setLiked(!liked);
   };
 
   return (
-    <a href="#" className="group block overflow-hidden">
+    <Link to={`/product/${slug}`} className="group block overflow-hidden">
       <div className="relative h-[350px] sm:h-[450px]">
         <img
           src={`http://localhost:8000${image}`}
@@ -15,7 +16,7 @@ const ProductCard = ({ name, price, image, hoverImage }) => {
           className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
         />
         <img
-          src={`http://localhost:8000${hoverImage}`}
+          src={`http://localhost:8000${hoverimage}`}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
         />
@@ -35,7 +36,7 @@ const ProductCard = ({ name, price, image, hoverImage }) => {
           {price.toLocaleString()}đ
         </p>
       </div>
-    </a>
+    </Link>
   );
 };
 

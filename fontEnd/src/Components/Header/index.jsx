@@ -156,12 +156,18 @@ function Header() {
             )}
           </div>
 
-          <div className="favorite">
+          <div className="favorite rounded-full flex justify-center items-center relative">
             <i className="far fa-heart"></i>
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
+              0
+            </span>
           </div>
 
-          <div className="cart">
+          <div className="cart rounded-full flex justify-center items-center relative">
             <i className="fas fa-cart-plus"></i>
+            <span className="absolute -top-3/6 right-3 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
+              0
+            </span>
           </div>
         </div>
       </div>

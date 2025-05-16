@@ -14,7 +14,7 @@ import Product from "./Pages/Admin/Product";
 import ProductTrash from "./Pages/Admin/Product/ProductTrash";
 import ProductVariant from "./Pages/Admin/ProductVariant";
 import ProductVariantTrash from "./Pages/Admin/ProductVariant/ProductVariantTrash";
-
+import Detail from "./Components/Detail";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 function App() {
@@ -48,6 +48,8 @@ function App() {
           path="/admin/productvarianttrash/:id"
           element={<ProductVariantTrash />}
         />
+        {/* Detail */}
+        <Route path="product/:slug" element={<Detail />} />
       </Routes>
       <Footer />
       <ToastContainer position="bottom-right" />
