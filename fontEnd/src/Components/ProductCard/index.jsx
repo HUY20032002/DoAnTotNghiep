@@ -1,38 +1,61 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-const ProductCard = (props) => {
-  const { name, price, image, hoverimage, slug } = props.data;
-  const [liked, setLiked] = useState(false);
-  const handleHeart = () => {
-    setLiked(!liked);
+import { useDispatch } from "react-redux";
+import { addToWishlist } from "~/redux/WishlistSlice";
+import { toast } from "react-toastify";
+
+const ProductCard = ({ data }) => {
+  const dispatch = useDispatch();
+  const { _id, name, price, image, hoverimage, slug } = data;
+
+  const handleHeart = (e) => {
+    e.preventDefault(); // ngăn redirect khi click icon trong thẻ <Link>
+    dispatch(
+      addToWishlist({
+        productId: _id,
+        name,
+        price,
+        image,
+      })
+    );
+    toast.success("Đã thêm vào yêu thích!");
   };
 
   return (
-    <Link to={`/product/${slug}`} className="group block overflow-hidden">
-      <div className="relative h-[350px] sm:h-[450px]">
+    <Link
+      to={`/product/${slug}`}
+      className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+      {/* Product Image */}
+      <div className="relative h-[300px] sm:h-[400px] w-full">
         <img
           src={`http://localhost:8000${image}`}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0"
+          alt={name}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
         />
         <img
           src={`http://localhost:8000${hoverimage}`}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
+          alt={name}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
         />
       </div>
 
-      <div className="relative bg-white pt-3">
-        <h3 className="text-xl text-gray-700 group-hover:underline group-hover:underline-offset-4">
-          {name}
-        </h3>
-        <button onClick={handleHeart}>
-          <i
-            className={liked ? "fas fa-heart" : "far fa-heart"}
-            style={{ color: liked ? "red" : "black" }}></i>
-        </button>
+      {/* Product Info */}
+      <div className="flex flex-col gap-1 p-4">
+        <div className="flex items-start justify-between">
+          <h3 className="text-lg font-semibold text-gray-800 group-hover:underline">
+            {name}
+          </h3>
 
-        <p className="mt-1.5 tracking-wide text-gray-900">
+          {/* Heart Icon */}
+          <button
+            onClick={handleHeart}
+            className="text-gray-500 hover:text-red-500 transition-colors duration-300"
+            title="Thêm vào yêu thích">
+            <i className="far fa-heart text-lg"></i>
+          </button>
+        </div>
+
+        <p className="text-base text-gray-900 font-medium">
           {price.toLocaleString()}đ
         </p>
       </div>

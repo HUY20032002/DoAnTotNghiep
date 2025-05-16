@@ -13,16 +13,23 @@ function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const menuRef = useRef(null); // Tạo một ref cho dropdown menu
-
-  // Định nghĩa hàm handleLogout
-  const handleLogout = () => {
-    try {
-      logoutUser(dispatch, id, navigate); // Xử lý logout
-      toast.success("Đăng xuất thành công");
-    } catch (error) {
-      toast.error("Đăng xuất thất bại");
-    }
-  };
+  const [totalQuanlityCart, SetTotalQuanlityCart] = useState(0);
+  const [totalWishList, SetTotalWishList] = useState(0);
+  const carts = useSelector((state) => state.cart.items);
+  const wishlist = useSelector((state) => state.wishlist.items);
+  // Cart
+  useEffect(() => {
+    let total = 0;
+    carts.forEach((item) => {
+      total += item.quantity;
+    });
+    SetTotalQuanlityCart(total);
+  }, [carts]);
+  // WishList
+  useEffect(() => {
+    // Số lượng của wishlist
+    SetTotalWishList(wishlist.length);
+  }, [wishlist]);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -39,7 +46,15 @@ function Header() {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-
+  // Định nghĩa hàm handleLogout
+  const handleLogout = () => {
+    try {
+      logoutUser(dispatch, id, navigate); // Xử lý logout
+      toast.success("Đăng xuất thành công");
+    } catch (error) {
+      toast.error("Đăng xuất thất bại");
+    }
+  };
   return (
     <header className="header fixed top-0 left-0 right-0 z-60 bg-white shadow-md">
       <div className="content">
@@ -159,14 +174,14 @@ function Header() {
           <div className="favorite rounded-full flex justify-center items-center relative">
             <i className="far fa-heart"></i>
             <span className="absolute top-0 right-0 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
-              0
+              {totalWishList}
             </span>
           </div>
 
           <div className="cart rounded-full flex justify-center items-center relative">
             <i className="fas fa-cart-plus"></i>
             <span className="absolute -top-3/6 right-3 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
-              0
+              {totalQuanlityCart}
             </span>
           </div>
         </div>

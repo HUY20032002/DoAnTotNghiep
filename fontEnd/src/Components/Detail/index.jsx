@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { ShowDetail, Categories, getProductVariant } from "~/redux/apiRequest";
+import Breadcrumb from "~/components/Breadcrumb";
+import { addToCart } from "~/redux/cartSlice";
 
 const Detail = () => {
   const { slug } = useParams();
@@ -12,7 +14,6 @@ const Detail = () => {
   const detailVariantList = useSelector(
     (state) => state.productVariants.productVariants?.allProductVariants
   );
-
   const [stock, setStock] = useState(1);
   const [showStockFor, setShowStockFor] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null); // Biến thể đang chọn
@@ -66,17 +67,19 @@ const Detail = () => {
 
   const handleAddToCart = () => {
     if (selectedVariant) {
-      // Dispatch tới Redux hoặc gọi API thêm vào giỏ hàng
-      console.log("Thêm vào giỏ hàng:", {
-        productId: detail._id,
-        variantId: selectedVariant._id,
-        quantity: stock,
-      });
+      dispatch(
+        addToCart({
+          productId: detail._id,
+          variantId: selectedVariant._id,
+          quantity: stock,
+        })
+      );
     }
   };
 
   return (
     <div className="container p-4 mt-[64px]">
+      <Breadcrumb />
       {detail ? (
         <div className="bg-white p-4 rounded shadow">
           <h2 className="text-xl font-bold">{detail.name}</h2>
