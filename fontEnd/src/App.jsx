@@ -15,6 +15,8 @@ import ProductTrash from "./Pages/Admin/Product/ProductTrash";
 import ProductVariant from "./Pages/Admin/ProductVariant";
 import ProductVariantTrash from "./Pages/Admin/ProductVariant/ProductVariantTrash";
 import Detail from "./Components/Detail";
+import Wishlist from "./Pages/Wishlist";
+
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 function App() {
@@ -50,6 +52,7 @@ function App() {
         />
         {/* Detail */}
         <Route path="product/:slug" element={<Detail />} />
+        <Route path="wishlist" element={<Wishlist />} />
       </Routes>
       <Footer />
       <ToastContainer position="bottom-right" />

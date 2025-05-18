@@ -97,12 +97,12 @@ function Header() {
           <div className="search">
             <i className="fas fa-search"></i>
           </div>
-          <div className="relative text-left" ref={menuRef}>
-            <div>
+          <div className="relative text-left " ref={menuRef}>
+            <div className="rounded-lg  hover:bg-gray-100">
               <button
                 type="button"
                 onClick={() => setShowMenu(!showMenu)}
-                className="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold ring-inset hover:bg-gray-50"
+                className="inline-flex w-full justify-center  px-3 py-2  font-semibold ring-inset "
                 id="menu-button"
                 aria-expanded={showMenu ? "true" : "false"}
                 aria-haspopup="true">
@@ -171,19 +171,22 @@ function Header() {
             )}
           </div>
 
-          <div className="favorite rounded-full flex justify-center items-center relative">
+          <Link
+            to={"/wishlist"}
+            className="favorite rounded-lg flex justify-center items-center relative hover:bg-gray-100">
             <i className="far fa-heart"></i>
             <span className="absolute top-0 right-0 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
               {totalWishList}
             </span>
-          </div>
-
-          <div className="cart rounded-full flex justify-center items-center relative">
+          </Link>
+          <Link
+            to={"/"}
+            className="cart rounded-lg  flex justify-center items-center relative hover:bg-gray-100 ">
             <i className="fas fa-cart-plus"></i>
-            <span className="absolute -top-3/6 right-3 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
+            <span className="absolute -top-2 -right-1 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
               {totalQuanlityCart}
             </span>
-          </div>
+          </Link>
         </div>
       </div>
     </header>
