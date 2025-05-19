@@ -1,24 +1,32 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addToWishlist } from "~/redux/WishlistSlice";
+import { addToWishlist, removeFromWishlist } from "~/redux/WishlistSlice";
 import { toast } from "react-toastify";
 
-const ProductCard = ({ data }) => {
+const ProductCard = ({ data, isInWishlist }) => {
   const dispatch = useDispatch();
-  const { _id, name, price, image, hoverimage, slug } = data;
+  const { productId, name, price, images, slug, _id } = data;
+  const id = _id || productId; // Ưu tiên _id nếu có, fallback productId
 
   const handleHeart = (e) => {
-    e.preventDefault(); // ngăn redirect khi click icon trong thẻ <Link>
-    dispatch(
-      addToWishlist({
-        productId: _id,
-        name,
-        price,
-        image,
-      })
-    );
-    toast.success("Đã thêm vào yêu thích!");
+    e.preventDefault();
+
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(id));
+      toast.info("Đã xóa khỏi yêu thích!");
+    } else {
+      dispatch(
+        addToWishlist({
+          productId: _id,
+          name,
+          price,
+          images,
+          slug,
+        })
+      );
+      toast.success("Đã thêm vào yêu thích!");
+    }
   };
 
   return (
@@ -26,14 +34,14 @@ const ProductCard = ({ data }) => {
       to={`/product/${slug}`}
       className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
       {/* Product Image */}
-      <div className="relative h-[300px] sm:h-[400px] w-full">
+      <div className="relative h-[250px] sm:h-[350px] w-full">
         <img
-          src={`http://localhost:8000${image}`}
+          src={`http://localhost:8000${images?.[0] || ""}`}
           alt={name}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
         />
         <img
-          src={`http://localhost:8000${hoverimage}`}
+          src={`http://localhost:8000${images?.[1] || ""}`}
           alt={name}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
         />
@@ -49,9 +57,13 @@ const ProductCard = ({ data }) => {
           {/* Heart Icon */}
           <button
             onClick={handleHeart}
-            className="text-gray-500 hover:text-red-500 transition-colors duration-300"
-            title="Thêm vào yêu thích">
-            <i className="far fa-heart text-lg"></i>
+            className={`text-xl ${
+              isInWishlist
+                ? "text-red-500 hover:text-gray-500"
+                : "text-gray-500 hover:text-red-500"
+            } transition-colors duration-300`}
+            title={isInWishlist ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}>
+            <i className={isInWishlist ? "far fa-heart" : "far fa-heart"}></i>
           </button>
         </div>
 

@@ -1,4 +1,5 @@
 const Product = require("../model/Product");
+const ProductVariant = require("../model/ProductVariant");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
@@ -9,12 +10,12 @@ class ProductController {
   async createProduct(req, res) {
     try {
       const { name, price, stock, category, description } = req.body;
-      const imageFile = req.files?.image?.[0];
-      const hoverFile = req.files?.hoverimage?.[0];
-      if (!imageFile || !hoverFile) {
+      const imageFiles = req.files;
+
+      if (!imageFiles || imageFiles.length === 0) {
         return res
           .status(400)
-          .json({ message: "Vui lòng chọn cả ảnh chính và ảnh hover!" });
+          .json({ message: "Vui lòng chọn ít nhất 1 ảnh!" });
       }
 
       if (!name || !price || !stock || !category || !description) {
@@ -23,14 +24,15 @@ class ProductController {
           .json({ message: "Vui lòng điền đầy đủ thông tin sản phẩm!" });
       }
 
+      const images = imageFiles.map((file) => `/uploads/${file.filename}`);
+
       const newProduct = new Product({
         name,
         price,
         stock,
         category,
         description,
-        image: `/uploads/${imageFile.filename}`,
-        hoverimage: `/uploads/${hoverFile.filename}`,
+        images,
       });
 
       await newProduct.save();
@@ -106,7 +108,6 @@ class ProductController {
       res.status(500).json({ error: err.message });
     }
   }
-
   // Lấy sản phẩm đã xóa mềm
   async getAllProductsTrash(req, res, next) {
     const page = parseInt(req.query.page) || 1;
@@ -161,7 +162,6 @@ class ProductController {
       res.status(500).json({ error: err.message });
     }
   }
-
   // Cập nhật thông tin sản phẩm
   async updateProduct(req, res) {
     try {
@@ -176,83 +176,52 @@ class ProductController {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      const currentImageRelativePath = existingProduct.image; // VD: "/uploads/old123.jpg"
-      const currentHoverImageRelativePath = existingProduct.hoverimage; // Đường dẫn ảnh hover cũ
-      const currentImageFullPath = path.join(
-        __dirname,
-        "../../../",
-        currentImageRelativePath
-      );
-      const currentHoverImageFullPath = path.join(
-        __dirname,
-        "../../../",
-        currentHoverImageRelativePath
-      );
+      const oldImages = existingProduct.images || [];
 
-      let imagePath = currentImageRelativePath;
-      let hoverImagePath = currentHoverImageRelativePath;
-
-      // Nếu có ảnh mới (image)
-      if (req.file) {
-        imagePath = "/uploads/" + req.file.filename;
-        const newImageFullPath = path.join(
-          __dirname,
-          "../../uploads",
-          req.file.filename
-        );
-
-        // Xóa ảnh cũ nếu không phải ảnh mặc định
-        if (
-          currentImageRelativePath &&
-          !currentImageRelativePath.includes("default.jpg") &&
-          fs.existsSync(currentImageFullPath)
-        ) {
-          fs.unlink(currentImageFullPath, (err) => {
-            if (err) {
-              console.error("❌ Không thể xóa ảnh cũ:", err.message);
-            } else {
-              console.log("✅ Ảnh cũ đã được xóa:", currentImageFullPath);
-            }
-          });
+      let keptImages = [];
+      if (req.body.keptImages) {
+        try {
+          keptImages = JSON.parse(req.body.keptImages);
+        } catch (err) {
+          return res.status(400).json({ message: "Invalid keptImages format" });
         }
       }
 
-      // Nếu có ảnh hover mới (hoverimage)
-      if (req.files && req.files.hoverimage) {
-        hoverImagePath = "/uploads/" + req.files.hoverimage[0].filename;
-        const newHoverImageFullPath = path.join(
-          __dirname,
-          "../../uploads",
-          req.files.hoverimage[0].filename
-        );
+      // Ảnh sẽ bị xóa (cũ mà không giữ)
+      const imagesToDelete = oldImages.filter(
+        (img) => !keptImages.includes(img)
+      );
 
-        // Xóa ảnh hover cũ nếu có và không phải ảnh mặc định
-        if (
-          currentHoverImageRelativePath &&
-          !currentHoverImageRelativePath.includes("default.jpg") &&
-          fs.existsSync(currentHoverImageFullPath)
-        ) {
-          fs.unlink(currentHoverImageFullPath, (err) => {
-            if (err) {
-              console.error("❌ Không thể xóa ảnh hover cũ:", err.message);
-            } else {
-              console.log(
-                "✅ Ảnh hover cũ đã được xóa:",
-                currentHoverImageFullPath
-              );
+      // Xóa ảnh khỏi folder
+      for (const imgPath of imagesToDelete) {
+        if (imgPath && !imgPath.includes("default.jpg")) {
+          const fullPath = path.join(__dirname, "../../../", imgPath);
+          if (fs.existsSync(fullPath)) {
+            try {
+              await fs.promises.unlink(fullPath);
+              console.log(" Đã xóa ảnh:", fullPath);
+            } catch (err) {
+              console.error(" Lỗi xóa ảnh:", err.message);
             }
-          });
+          }
         }
       }
 
+      // Ảnh mới upload
+      let newUploadedImages = [];
+      if (req.files && req.files.length > 0) {
+        newUploadedImages = req.files.map(
+          (file) => "/uploads/" + file.filename
+        );
+      }
+      const finalImages = [...keptImages, ...newUploadedImages];
       const updateData = {
         name: req.body.name,
         price: req.body.price,
         stock: req.body.stock,
         description: req.body.description,
         category: req.body.category,
-        image: imagePath,
-        hoverimage: hoverImagePath, // Cập nhật ảnh hover
+        images: finalImages,
       };
 
       const updatedProduct = await Product.findByIdAndUpdate(
@@ -286,12 +255,10 @@ class ProductController {
     try {
       const productId = req.params.id;
 
-      // Kiểm tra ID hợp lệ
       if (!mongoose.Types.ObjectId.isValid(productId)) {
         return res.status(400).json({ message: "ID sản phẩm không hợp lệ!" });
       }
 
-      // Chỉ tìm sản phẩm đã bị xóa mềm
       const productToDelete = await Product.findOneDeleted({ _id: productId });
 
       if (!productToDelete) {
@@ -300,48 +267,39 @@ class ProductController {
         });
       }
 
-      // Kiểm tra và xóa ảnh nếu có
-      if (productToDelete.image) {
-        const imagePath = path.resolve(
-          __dirname,
-          "../../../uploads",
-          path.basename(productToDelete.image)
-        );
-
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-          console.log("Ảnh đã được xóa:", imagePath);
-        } else {
-          console.log("Ảnh không tồn tại tại:", imagePath);
-        }
-      }
-      // Kiểm tra và xóa ảnh nếu có
-      if (productToDelete.hoverimage) {
-        const imagePath = path.resolve(
-          __dirname,
-          "../../../uploads",
-          path.basename(productToDelete.hoverimage)
-        );
-
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-          console.log("Ảnh đã được xóa:", imagePath);
-        } else {
-          console.log("Ảnh không tồn tại tại:", imagePath);
+      //  Xử lý xóa ảnh trong mảng images
+      if (Array.isArray(productToDelete.images)) {
+        for (const imgPath of productToDelete.images) {
+          const cleanedImgPath = imgPath.replace(/^\/+/, "");
+          const fullPath = path.join(__dirname, "../../../", cleanedImgPath);
+          if (fs.existsSync(fullPath)) {
+            try {
+              fs.unlinkSync(fullPath);
+              console.log(" Đã xóa ảnh:", fullPath);
+            } catch (err) {
+              console.error(" Lỗi khi xóa ảnh:", fullPath, err.message);
+            }
+          } else {
+            console.log("Ảnh không tồn tại:", fullPath);
+          }
         }
       }
 
-      // Xóa vĩnh viễn sản phẩm khỏi DB
+      // 🔁 Xóa tất cả các biến thể liên quan
+      await ProductVariant.deleteMany({ product_id: productId });
+      // console.log(`🗑️ Đã xóa các biến thể của sản phẩm ${productId}`);
+
+      // Xóa sản phẩm khỏi DB
       const deletedProduct = await Product.deleteOne({ _id: productId });
 
       return res.status(200).json({
-        message: "Sản phẩm đã bị xóa vĩnh viễn!",
+        message: "Sản phẩm, ảnh và các biến thể đã bị xóa vĩnh viễn!",
         product: deletedProduct,
       });
     } catch (error) {
-      console.error("Lỗi xóa vĩnh viễn:", error);
+      console.error(" Lỗi khi xóa vĩnh viễn sản phẩm:", error);
       return res.status(500).json({
-        message: "Lỗi khi xóa vĩnh viễn sản phẩm",
+        message: "Lỗi hệ thống khi xóa sản phẩm",
         error: error.message,
       });
     }

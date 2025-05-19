@@ -25,6 +25,7 @@ function Header() {
     });
     SetTotalQuanlityCart(total);
   }, [carts]);
+
   // WishList
   useEffect(() => {
     // Số lượng của wishlist
@@ -38,9 +39,7 @@ function Header() {
         setShowMenu(false);
       }
     };
-
     document.addEventListener("click", handleClickOutside);
-
     // Cleanup listener khi component unmount
     return () => {
       document.removeEventListener("click", handleClickOutside);

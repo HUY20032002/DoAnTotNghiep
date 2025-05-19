@@ -9,13 +9,10 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [image, setImage] = useState(null);
-  const [hoverimage, setHoverImage] = useState(null);
+  const [images, setImages] = useState([]); // mảng file ảnh mới
+  const [previewImages, setPreviewImages] = useState([]); // mảng URL preview ảnh
   const [categories, setCategories] = useState([]);
-  const fileInputRef = useRef(); // ref cho input file
-  const fileInputHoverRef = useRef(); // separate ref for hover image
-  const [previewImage, setPreviewImage] = useState(null);
-  const [previewHoverImage, setPreviewHoverImage] = useState(null);
+  const fileInputRef = useRef();
 
   useEffect(() => {
     axios
@@ -37,28 +34,28 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
       setStock(product.stock || "");
       setDescription(product.description || "");
       setCategory(product.category || "");
-      setImage(null); // Reset image if not uploading again
-      setHoverImage(null); // Reset hover image
-      setPreviewImage(null); // Reset preview
-      setPreviewHoverImage(null); // Reset hover image preview
+      setImages([]); // reset ảnh mới
+      setPreviewImages([]); // reset preview ảnh mới
       if (fileInputRef.current) fileInputRef.current.value = null;
-      if (fileInputHoverRef.current) fileInputHoverRef.current.value = null;
     }
   }, [product]);
 
-  const handleImage = (e, type) => {
-    const file = e.target.files[0];
-    if (file && file.size > 2 * 1024 * 1024) {
-      alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
-      return;
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Kiểm tra kích thước mỗi ảnh
+    for (let file of files) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+        return;
+      }
     }
-    if (type === "image") {
-      setImage(file);
-      setPreviewImage(URL.createObjectURL(file));
-    } else if (type === "hoverimage") {
-      setHoverImage(file);
-      setPreviewHoverImage(URL.createObjectURL(file));
-    }
+
+    setImages(files);
+
+    // Tạo URL preview
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages(previews);
   };
 
   const handleSubmit = async (e) => {
@@ -75,12 +72,11 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
     formData.append("stock", stock);
     formData.append("category", category);
     formData.append("description", description);
-    if (image) {
-      formData.append("image", image);
-    }
-    if (hoverimage) {
-      formData.append("hoverimage", hoverimage);
-    }
+
+    // Gửi từng file ảnh trong mảng images
+    images.forEach((file, index) => {
+      formData.append("images", file);
+    });
 
     try {
       await updateProduct(product._id, formData);
@@ -114,69 +110,42 @@ const EditProduct = ({ show, onClose, onCreateSuccess, product }) => {
           <div className="w-1/3 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Ảnh sản phẩm
+                Ảnh sản phẩm (chọn nhiều ảnh)
               </label>
               <input
                 type="file"
-                name="image"
+                name="images"
                 accept="image/*"
+                multiple
                 ref={fileInputRef}
-                onChange={(e) => handleImage(e, "image")}
+                onChange={handleImagesChange}
                 className="mt-1 block w-full border rounded px-2 py-1"
               />
-              {!image && product?.image && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Ảnh hiện tại:</p>
-                  <img
-                    src={`http://localhost:8000${product.image}`}
-                    alt="Ảnh sản phẩm hiện tại"
-                    className="w-32 h-32 object-cover rounded border mt-1"
-                  />
+              {/* Nếu chưa chọn ảnh mới thì hiển thị ảnh cũ */}
+              {images.length === 0 && product?.images?.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {product.images.map((imgUrl, idx) => (
+                    <img
+                      key={idx}
+                      src={`http://localhost:8000${imgUrl}`}
+                      alt={`Ảnh sản phẩm ${idx + 1}`}
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                  ))}
                 </div>
               )}
-              {previewImage && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Xem trước ảnh mới:</p>
-                  <img
-                    src={previewImage}
-                    alt="Xem trước"
-                    className="w-32 h-32 object-cover rounded border mt-1"
-                  />
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Ảnh Hover sản phẩm
-              </label>
-              <input
-                type="file"
-                name="hoverimage"
-                accept="image/*"
-                ref={fileInputHoverRef}
-                onChange={(e) => handleImage(e, "hoverimage")}
-                className="mt-1 block w-full border rounded px-2 py-1"
-              />
-              {!hoverimage && product?.hoverimage && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Ảnh Hover hiện tại:</p>
-                  <img
-                    src={`http://localhost:8000${product.hoverimage}`}
-                    alt="Ảnh Hover sản phẩm hiện tại"
-                    className="w-32 h-32 object-cover rounded border mt-1"
-                  />
-                </div>
-              )}
-              {previewHoverImage && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Xem trước ảnh Hover mới:
-                  </p>
-                  <img
-                    src={previewHoverImage}
-                    alt="Xem trước Hover"
-                    className="w-32 h-32 object-cover rounded border mt-1"
-                  />
+
+              {/* Hiển thị preview ảnh mới */}
+              {previewImages.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {previewImages.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt={`Xem trước ảnh ${idx + 1}`}
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                  ))}
                 </div>
               )}
             </div>

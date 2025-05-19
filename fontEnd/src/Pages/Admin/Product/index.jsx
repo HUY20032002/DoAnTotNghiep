@@ -166,14 +166,14 @@ const Product = () => {
                   <td className="py-2 px-4 text-left">{index + 1}</td>
                   <td className="py-2 px-4 text-left">
                     <img
-                      src={`http://localhost:8000${product.image}`}
+                      src={`http://localhost:8000${product.images?.[0] || ""}`}
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded"
                     />
                   </td>
                   <td className="py-2 px-4 text-left">
                     <img
-                      src={`http://localhost:8000${product.hoverimage}`}
+                      src={`http://localhost:8000${product.images?.[1] || ""}`}
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded"
                     />

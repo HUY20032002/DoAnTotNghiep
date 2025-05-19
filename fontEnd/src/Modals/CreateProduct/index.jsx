@@ -10,11 +10,10 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [image, setImage] = useState(null);
-  const [hoverimage, setHoverImage] = useState(null);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [hoverImagePreview, setHoverImagePreview] = useState(null);
+
   const fileInputRef = useRef();
   const dispatch = useDispatch();
 
@@ -46,55 +45,48 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
     setStock("");
     setDescription("");
     setCategory("");
-    setImage(null);
-    setHoverImage(null);
-    setImagePreview(null);
-    setHoverImagePreview(null);
+    setImages([]);
+    setImagePreviews([]);
+
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
   // Handle file change
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    const { name } = e.target;
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files);
 
-    if (file && file.size > 2 * 1024 * 1024) {
-      alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+    const oversized = files.find((file) => file.size > 2 * 1024 * 1024);
+    if (oversized) {
+      toast.error("Một trong các ảnh vượt quá 2MB.");
       return;
     }
 
-    if (name === "image") {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    } else if (name === "hoverimage") {
-      setHoverImage(file);
-      setHoverImagePreview(URL.createObjectURL(file));
-    }
+    setImages(files);
+    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if files are selected
-    if (!image || !hoverimage) {
-      toast.error("Vui lòng chọn cả ảnh sản phẩm và ảnh hover!");
+    if (images.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 ảnh sản phẩm!");
       return;
     }
 
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("price", price);
-      formData.append("stock", stock);
-      formData.append("category", category);
-      formData.append("description", description);
-      formData.append("image", image);
-      formData.append("hoverimage", hoverimage);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("stock", stock);
+    formData.append("category", category);
+    formData.append("description", description);
+    images.forEach((file) => formData.append("images", file)); // gửi nhiều ảnh
 
-      await createProduct(dispatch, formData); // Call API to create product
+    try {
+      await createProduct(dispatch, formData);
       onCreateSuccess();
       onClose();
+      resetForm(); // <-- Thêm dòng này
       toast.success("Thêm sản phẩm thành công");
     } catch (err) {
       toast.error("Thêm sản phẩm thất bại");
@@ -122,42 +114,25 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
           <div className="w-1/3 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Ảnh sản phẩm
+                Ảnh sản phẩm (nhiều ảnh)
               </label>
               <input
                 type="file"
                 accept="image/*"
-                name="image"
-                onChange={handleImage}
+                multiple
+                onChange={handleImagesChange}
                 className="mt-1 block w-full border rounded px-2 py-1"
               />
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="mt-2 w-full h-auto max-h-48 object-cover rounded border"
-                />
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Ảnh Hover sản phẩm
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                name="hoverimage"
-                onChange={handleImage}
-                className="mt-1 block w-full border rounded px-2 py-1"
-              />
-              {hoverImagePreview && (
-                <img
-                  src={hoverImagePreview}
-                  alt="Hover Preview"
-                  className="mt-2 w-full h-auto max-h-48 object-cover rounded border"
-                />
-              )}
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {imagePreviews.map((src, index) => (
+                  <img
+                    key={index}
+                    src={src}
+                    alt={`preview-${index}`}
+                    className="w-full h-28 object-cover rounded border"
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -230,5 +205,4 @@ const CreateProduct = ({ show, onClose, onCreateSuccess }) => {
     </div>
   );
 };
-
 export default CreateProduct;

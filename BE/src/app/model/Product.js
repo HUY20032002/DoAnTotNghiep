@@ -6,11 +6,10 @@ const slugify = require("slugify");
 const Product = new Schema(
   {
     name: { type: String, maxLength: 255 },
-    slug: { type: String, unique: true }, // Thêm slug
+    slug: { type: String, unique: true },
     price: { type: Number },
     description: { type: String, maxLength: 255 },
-    image: { type: String },
-    hoverimage: { type: String },
+    images: [{ type: String }], // mảng các ảnh sản phẩm
     stock: { type: Number },
     type: { type: String, maxLength: 255 },
     category: { type: String, maxLength: 50 },
