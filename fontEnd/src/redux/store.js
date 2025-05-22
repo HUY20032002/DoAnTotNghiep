@@ -19,6 +19,22 @@ const loadWishlistFromSession = () => {
     return { items: [] };
   }
 };
+// 1 Tạo hàm load cart từ session Storage
+const loadCartFromSession = () => {
+  try {
+    const serialized = sessionStorage.getItem("cart");
+    return serialized ? JSON.parse(serialized) : { items: [] };
+  } catch {
+    return { items: [] };
+  }
+};
+// 2 Tạo hàm lưu cart vào sessionStorage
+const saveCartToSession = (cartState) => {
+  try {
+    const serialized = JSON.stringify(cartState);
+    sessionStorage.setItem("cart", serialized);
+  } catch {}
+};
 
 // 2. Hàm này dùng để lưu state wishlist vào sessionStorage dưới dạng chuỗi JSON
 const saveWishlistToSession = (wishlistState) => {
@@ -35,7 +51,8 @@ const saveWishlistToSession = (wishlistState) => {
 
 // 3. Khởi tạo trạng thái ban đầu (preloadedState) cho Redux store
 const preloadedState = {
-  wishlist: loadWishlistFromSession(), // Lấy dữ liệu wishlist từ sessionStorage, hoặc dùng mặc định nếu không có
+  wishlist: loadWishlistFromSession(),
+  cart: loadCartFromSession(), // <-- Thêm dòng này
 };
 
 const store = configureStore({
@@ -52,7 +69,9 @@ const store = configureStore({
 
 // Theo dõi thay đổi để lưu lại wishlist
 store.subscribe(() => {
+  const state = store.getState();
   saveWishlistToSession(store.getState().wishlist);
+  saveCartToSession(state.cart);
 });
 
 export default store;

@@ -11,7 +11,6 @@ const ProductCard = ({ data, isInWishlist }) => {
 
   const handleHeart = (e) => {
     e.preventDefault();
-
     if (isInWishlist) {
       dispatch(removeFromWishlist(id));
       toast.info("Đã xóa khỏi yêu thích!");

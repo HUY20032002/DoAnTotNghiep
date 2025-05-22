@@ -20,16 +20,17 @@ function Header() {
   // Cart
   useEffect(() => {
     let total = 0;
-    carts.forEach((item) => {
-      total += item.quantity;
-    });
+    if (Array.isArray(carts)) {
+      carts.forEach((item) => {
+        total += item.quantity;
+      });
+    }
     SetTotalQuanlityCart(total);
   }, [carts]);
 
   // WishList
   useEffect(() => {
-    // Số lượng của wishlist
-    SetTotalWishList(wishlist.length);
+    SetTotalWishList(Array.isArray(wishlist) ? wishlist.length : 0);
   }, [wishlist]);
 
   // Đóng dropdown khi click ra ngoài
@@ -179,7 +180,7 @@ function Header() {
             </span>
           </Link>
           <Link
-            to={"/"}
+            to={"/carts"}
             className="cart rounded-lg  flex justify-center items-center relative hover:bg-gray-100 ">
             <i className="fas fa-cart-plus"></i>
             <span className="absolute -top-2 -right-1 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">

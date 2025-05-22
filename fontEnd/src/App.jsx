@@ -15,6 +15,8 @@ import ProductTrash from "./Pages/Admin/Product/ProductTrash";
 import ProductVariant from "./Pages/Admin/ProductVariant";
 import ProductVariantTrash from "./Pages/Admin/ProductVariant/ProductVariantTrash";
 import Detail from "./Components/Detail";
+import Cart from "./Pages/Cart";
+
 import Wishlist from "./Pages/Wishlist";
 
 import "./App.css";
@@ -53,6 +55,8 @@ function App() {
         {/* Detail */}
         <Route path="product/:slug" element={<Detail />} />
         <Route path="wishlist" element={<Wishlist />} />
+        {/* Cart */}
+        <Route path="/carts" element={<Cart />} />
       </Routes>
       <Footer />
       <ToastContainer position="bottom-right" />

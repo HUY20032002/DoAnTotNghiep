@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { ShowDetail, Categories, getProductVariant } from "~/redux/apiRequest";
 import Breadcrumb from "~/components/Breadcrumb";
 import { addToCart } from "~/redux/cartSlice";
+import { toast } from "react-toastify";
 
 const Detail = () => {
   const { slug } = useParams();
@@ -17,7 +18,7 @@ const Detail = () => {
   const [stock, setStock] = useState(1);
   const [showStockFor, setShowStockFor] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null); // Biến thể đang chọn
-
+  const [checkSize, setCheckSize] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
@@ -58,12 +59,20 @@ const Detail = () => {
   };
 
   const handleMinusStock = () => {
-    setStock((prev) => (prev > 1 ? prev - 1 : 1));
+    if (!checkSize) {
+      toast.error("Vui Lòng Chọn Size Sản Phẩm");
+    } else {
+      setStock((prev) => (prev > 1 ? prev - 1 : 1));
+    }
   };
 
   const handlePushStock = () => {
-    if (selectedVariant && stock < selectedVariant.stock) {
-      setStock((prev) => prev + 1);
+    if (!checkSize) {
+      toast.error("Vui Lòng Chọn Size Sản Phẩm");
+    } else {
+      if (selectedVariant && stock < selectedVariant.stock) {
+        setStock((prev) => prev + 1);
+      }
     }
   };
 
@@ -71,17 +80,28 @@ const Detail = () => {
     setShowStockFor(variant._id);
     setSelectedVariant(variant);
     setStock(1); // Reset lại số lượng mỗi khi chọn size mới
+    setCheckSize(true);
   };
 
   const handleAddToCart = () => {
-    if (selectedVariant) {
-      dispatch(
-        addToCart({
-          productId: detail._id,
-          variantId: selectedVariant._id,
-          quantity: stock,
-        })
-      );
+    if (!checkSize) {
+      toast.error("Vui Lòng Chọn Size Sản Phẩm");
+    } else {
+      if (selectedVariant) {
+        dispatch(
+          addToCart({
+            productId: detail._id,
+            variantId: selectedVariant._id,
+            variantStock: selectedVariant.stock,
+            quantity: stock,
+            price: detail.price,
+            img: detail.images?.[0] || "",
+            name: detail.name,
+            slug: detail.slug,
+            size: selectedVariant.size,
+          })
+        );
+      }
     }
   };
   // console.log(detailVariantList);

@@ -51,7 +51,7 @@ function Profile() {
   };
 
   return (
-    <div className="mt-[64px]">
+    <div className="container mx-auto p-4 mt-[64px]">
       <Breadcrumb />
       <div className="grid grid-cols-[1fr_1px_3fr] container">
         {/* Cột vàng */}
