@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./Header.scss";
+// import "./Search.scss";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../redux/apiRequest";
+import { logoutUser, searchProduct } from "../../redux/apiRequest";
 import { toast } from "react-toastify";
-import SearchModal from "~/Modals/Search";
-function Header() {
+
+function Search({ show, onClose }) {
   const [showMenu, setShowMenu] = useState(false);
   const user = useSelector((state) => state.auth.login.currentUser);
   const id = user?._id;
@@ -15,10 +15,16 @@ function Header() {
   const menuRef = useRef(null); // Tạo một ref cho dropdown menu
   const [totalQuanlityCart, SetTotalQuanlityCart] = useState(0);
   const [totalWishList, SetTotalWishList] = useState(0);
-  const [showModals, setShowModals] = useState(false);
-
+  const [searchKey, SetSearchKey] = useState("");
   const carts = useSelector((state) => state.cart.items) || [];
   const wishlist = useSelector((state) => state.wishlist.items) || [];
+  // target input search
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (show && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [show]);
   // Cart
   useEffect(() => {
     let total = 0;
@@ -53,52 +59,71 @@ function Header() {
     try {
       logoutUser(dispatch, id, navigate); // Xử lý logout
       toast.success("Đăng xuất thành công");
+      onClose();
     } catch (error) {
       toast.error("Đăng xuất thất bại");
     }
   };
+  //   Show Search
+  if (!show) return null;
+
+  const handleOverlayClick = (e) => {
+    if (e.target.id === "modal-overlay") {
+      onClose();
+    }
+  };
+  const handleCloseShow = () => {
+    onClose();
+  };
+  const handleSearchKey = () => {
+    if (!searchKey.trim()) {
+      toast.warning("Vui lòng nhập từ khóa tìm kiếm");
+      return;
+    }
+    searchProduct(dispatch, searchKey);
+    onClose();
+    navigate(`/search/${encodeURIComponent(searchKey)}`);
+  };
+
   return (
-    <header className="header fixed top-0 left-0 right-0 z-60 bg-white shadow-md">
-      <SearchModal show={showModals} onClose={() => setShowModals(false)} />
-      <div className="content">
+    <header
+      id="modal-overlay"
+      onClick={handleOverlayClick}
+      className=" fixed inset-0 z-50  bg-black/50 transition-opacity duration-200">
+      <div className="content bg-white">
         <div className="left-content">
           <div className="logo">
-            <Link to="/">
-              {" "}
+            <Link to="/" onClick={onClose}>
               <img src="/logo.webp" alt="logo" />
             </Link>{" "}
           </div>
         </div>
-        <div className="center-content">
-          <div className="child-center-content">
-            <Link to="/">
-              {" "}
-              <span>Trang chủ</span>
-            </Link>{" "}
-          </div>
-          <div className="child-center-content">
-            <span>Giới thiệu</span>
-          </div>
-          <div className="child-center-content">
-            <span>
-              <img src="https://theme.hstatic.net/200000881795/1001243022/14/menu_icon_3.png?v=152" />
-              Sản phẩm
-              <i className="fas fa-chevron-down"></i>
-            </span>
-          </div>
-          <div className="child-center-content">
-            <span>Blog</span>
-          </div>
-          <div className="child-center-content">
-            <span>Liên Hệ</span>
-          </div>
-          <div className="child-center-content">
-            <span>Kiểm tra đơn hàng</span>
+        <div className="center-content flex justify-center items-center w-[730px] px-2 relative">
+          <div className="search border border-black p-1 rounded-3xl w-[730px]">
+            <input
+              ref={inputRef}
+              type="text"
+              className="w-full rounded-3xl px-1 py-1 focus:outline-none"
+              placeholder="Tìm Kiếm...."
+              onChange={(e) => SetSearchKey(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchKey();
+                }
+              }}
+            />
+            {/* Nút tìm kiếm nằm bên trong input field, bên phải */}
+            <button
+              onClick={handleSearchKey}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black text-white rounded-full w-10 h-10 flex items-center justify-center">
+              <i className="fas fa-search"></i>
+            </button>
           </div>
         </div>
+
         <div className="right-content">
           <div className="search">
-            <button onClick={() => setShowModals(!showModals)}>
+            <button onClick={handleCloseShow}>
               <i className="fas fa-search"></i>
             </button>
           </div>
@@ -114,7 +139,6 @@ function Header() {
                 <i className="far fa-user"></i>
               </button>
             </div>
-
             {showMenu && (
               <div
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -150,6 +174,7 @@ function Header() {
                       {user.admin ? (
                         <Link
                           to="/admin"
+                          onClick={onClose}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           role="menuitem">
                           Quản Lý
@@ -157,6 +182,7 @@ function Header() {
                       ) : (
                         <Link
                           to="/profile"
+                          onClick={onClose}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           role="menuitem">
                           Profile
@@ -164,7 +190,10 @@ function Header() {
                       )}
 
                       <button
-                        onClick={handleLogout}
+                        onClick={() => {
+                          handleLogout();
+                          onClose();
+                        }}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem">
                         Đăng xuất
@@ -178,6 +207,7 @@ function Header() {
 
           <Link
             to={"/wishlist"}
+            onClick={onClose}
             className="favorite rounded-lg flex justify-center items-center relative hover:bg-gray-100">
             <i className="far fa-heart"></i>
             <span className="absolute top-0 right-0 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
@@ -186,6 +216,7 @@ function Header() {
           </Link>
           <Link
             to={"/carts"}
+            onClick={onClose}
             className="cart rounded-lg  flex justify-center items-center relative hover:bg-gray-100 ">
             <i className="fas fa-cart-plus"></i>
             <span className="absolute -top-2 -right-1 bg-red-500 text-white text-sm w-5 h-5 rounded-full flex justify-center items-center">
@@ -198,4 +229,4 @@ function Header() {
   );
 }
 
-export default Header;
+export default Search;

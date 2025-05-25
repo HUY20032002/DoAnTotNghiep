@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const User = require("../model/User"); // Giả sử bạn có model User trong thư mục model
 const Product = require("../model/Product");
+const Category = require("../model/Categories");
 const {
   mutipleMongooseToObject,
   mongooseToObject,
@@ -24,9 +25,31 @@ class SiteController {
   login(req, res) {
     res.render("login");
   }
-  // [GET] /news/:slug
-  search(req, res) {
-    res.render("home");
+  // [GET] /search
+
+  search(req, res, next) {
+    const keyword = req.query.keyword;
+    console.log("Từ khóa tìm kiếm: ", keyword);
+
+    // Tìm category có tên khớp với keyword
+    Category.find({
+      name: { $regex: keyword, $options: "i" },
+    })
+      .then((categories) => {
+        const categoryIds = categories.map((cat) => cat._id);
+
+        // Tìm sản phẩm theo tên hoặc theo category id
+        return Product.find({
+          $or: [
+            { name: { $regex: keyword, $options: "i" } },
+            { category: { $in: categoryIds } },
+          ],
+        });
+      })
+      .then((products) =>
+        res.json({ products: mutipleMongooseToObject(products) })
+      )
+      .catch(next);
   }
   // [POST] /forgot-password
   async forgotPassword(req, res) {

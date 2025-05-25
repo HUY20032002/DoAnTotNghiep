@@ -506,3 +506,30 @@ export const ShowDetail = async (dispatch, slug) => {
     console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
   }
 };
+//Create Order
+export const createOrder = async (dispatch, data) => {
+  // dispatch(getProductStart());
+  try {
+    const res = await axios.post(`http://localhost:8000/order/create`, data);
+    // dispatch(getProductSuccess(res.data));
+    // console.log(res.data.products);
+  } catch (error) {
+    // dispatch(getProductFailed());
+    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+  }
+};
+// Search Site
+export const searchProduct = async (dispatch, keysearch) => {
+  try {
+    dispatch(getProductStart());
+    const res = await axios.get(
+      `http://localhost:8000/search?keyword=${keysearch}`,
+      {}
+    );
+    console.log(res.data);
+    dispatch(getProductSuccess(res.data));
+  } catch (error) {
+    dispatch(getProductFailed());
+    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+  }
+};

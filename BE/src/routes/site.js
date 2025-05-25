@@ -6,6 +6,7 @@ const middlewareController = require("../app/controllers/MiddlewereController");
 router.get("/login", siteController.login);
 router.get("/register", siteController.register);
 router.get("/show", siteController.getAllProduct);
+router.get("/search", siteController.search);
 router.post("/forgotpassword", siteController.forgotPassword);
 router.get("/detail/:slug", siteController.findSlug);
 // router.get("/:slug", siteController.search);

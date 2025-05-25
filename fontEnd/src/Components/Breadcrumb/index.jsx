@@ -19,9 +19,10 @@ const Breadcrumb = () => {
           const isLast = index === pathnames.length - 1;
 
           const formatName = (n) => {
-            return decodeURIComponent(n)
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (c) => c.toUpperCase());
+            const decoded = decodeURIComponent(n).replace(/-/g, " ");
+            return (
+              decoded.charAt(0).toLocaleUpperCase("vi-VN") + decoded.slice(1)
+            );
           };
 
           return (

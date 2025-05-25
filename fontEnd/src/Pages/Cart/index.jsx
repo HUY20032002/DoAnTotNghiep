@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumb from "~/components/Breadcrumb";
 import {
   removeFromCart,
   increaseQuantity,
   decreaseQuantity,
 } from "~/redux/cartSlice";
+import { createOrder } from "~/redux/apiRequest";
 
 function Cart() {
   // redux cart
@@ -14,11 +15,8 @@ function Cart() {
   // redux user
   const user = useSelector((state) => state.auth.login.currentUser);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]); // chỉ log khi user thay đổi
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleDeleteCart = (id) => {
     console.log("deletecart");
@@ -31,9 +29,50 @@ function Cart() {
   const handleMinusStock = (id) => {
     dispatch(decreaseQuantity(id));
   };
-  const handlePay = () => {
+  const handlePay = (cartItems) => {
+    if (!user?.accessToken) {
+      navigate("/login");
+      return;
+    }
+
+    // Tính tổng tiền dựa trên cartItems, dùng price * quantity cho chắc
+    const totalAmount = cartItems.reduce((total, item) => {
+      const price = Number(item.price);
+      const quantity = Number(item.quantity);
+
+      // Kiểm tra dữ liệu hợp lệ
+      if (isNaN(price) || isNaN(quantity)) {
+        console.warn("Giá hoặc số lượng không hợp lệ trong cartItems", item);
+        return total;
+      }
+
+      return total + price * quantity;
+    }, 0);
+
+    const data = {
+      user: {
+        id: user._id,
+        name: user.name,
+        address: user.address,
+        phone: user.phone,
+      },
+      products: cartItems.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        name: item.name,
+        variantSize: item.variantSize,
+        price: item.price,
+        quantity: item.quantity,
+        totalPrice: item.price * item.quantity, // thêm cho backend dễ kiểm tra nếu cần
+      })),
+      totalAmount, // gửi tổng tiền tính đúng
+      paymentStatus: "paid",
+    };
+
+    createOrder(dispatch, data);
     console.log("Thanh toán thành công");
   };
+
   return (
     <div className="container mx-auto p-4 mt-[64px]">
       <Breadcrumb />
@@ -115,7 +154,7 @@ function Cart() {
 
             <button
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded transition-colors duration-200"
-              onClick={handlePay}>
+              onClick={() => handlePay(carts)}>
               Tiến hành thanh toán
             </button>
           </div>
